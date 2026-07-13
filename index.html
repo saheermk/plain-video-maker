@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plain Video Maker</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        @font-face {
+            font-family: 'Noto Sans Malayalam';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('font/NotoSansMalayalam-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Noto Sans Malayalam';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('font/NotoSansMalayalam-Bold.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('font/Montserrat-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('font/Montserrat-Bold.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url('font/Montserrat-Black.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Fredoka';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('font/Fredoka-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Fredoka';
+            font-style: normal;
+            font-weight: 600;
+            font-display: swap;
+            src: url('font/Fredoka-SemiBold.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Fredoka';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('font/Fredoka-Bold.ttf') format('truetype');
+        }
+
+        /* Modern CSS Reset & Variable System */
+        /* Light (White) Theme by Default */
+        :root {
+            --bg-main: #f8fafc;
+            /* Light Slate 50 background */
+            --bg-card: #ffffff;
+            /* Solid White Card background */
+            --bg-header: rgba(255, 255, 255, 0.85);
+            /* Glassmorphic Light Header */
+            --border-color: #e2e8f0;
+            /* Light Slate 200 borders */
+            --bg-input: #ffffff;
+            /* White input fields */
+            --text-main: #0f172a;
+            /* Slate 900 main text */
+            --text-muted: #475569;
+            /* Slate 600 secondary text */
+            --text-dark: #64748b;
+            /* Slate 500 label / caption text */
+            --primary: #2563eb;
+            /* Vibrant Blue */
+            --primary-hover: #1d4ed8;
+            --danger: #ef4444;
+            /* Standard Red */
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            /* Standard Green */
+            --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-modal: rgba(255, 255, 255, 0.98);
+            --text-modal-title: #0f172a;
+            --text-modal-desc: #2563eb;
+        }
+
+        /* Dark Theme Variables */
+        :root.dark-theme {
+            --bg-main: #0b0f19;
+            /* Deep Slate background */
+            --bg-card: rgba(22, 28, 45, 0.65);
+            /* Translucent dark slate */
+            --bg-header: rgba(15, 23, 42, 0.85);
+            /* Translucent header */
+            --border-color: #1e293b;
+            /* Dark Slate borders */
+            --bg-input: #050811;
+            /* Deep Slate input fields */
+            --text-main: #f8fafc;
+            /* Light Slate main text */
+            --text-muted: #94a3b8;
+            /* Muted Slate secondary text */
+            --text-dark: #64748b;
+            /* Dark label / caption text */
+            --primary: #3b82f6;
+            /* Bright Blue */
+            --primary-hover: #2563eb;
+            --danger: #7f1d1d;
+            --danger-hover: #991b1b;
+            --success: #059669;
+            --bg-modal: rgba(11, 15, 25, 0.98);
+            --text-modal-title: #ffffff;
+            --text-modal-desc: #60a5fa;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dark);
+        }
+
+        /* Hidden Class Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Layout Grid */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: var(--bg-header);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            position: static;
+            z-index: 50;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 1024px) {
+            header {
+                position: sticky;
+                top: 0;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            background-color: var(--primary);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.125rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
+
+        .logo-text p {
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            color: var(--text-main);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        :root.dark-theme .theme-toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            display: block;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        /* Mobile Layout Styling: Preview sticks to top of mobile screen */
+        @media (max-width: 1023px) {
+            .preview-panel {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                background-color: rgba(11, 15, 25, 0.98);
+                backdrop-filter: blur(12px);
+                padding: 0.75rem;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                box-sizing: border-box;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .preview-wrapper {
+                width: 100%;
+                padding: 0;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .preview-title {
+                display: none !important;
+            }
+
+            .preview-phone {
+                height: 200px;
+                width: auto !important;
+                max-width: 100% !important;
+                border-width: 3px !important;
+                border-radius: 0.75rem !important;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .preview-phone canvas {
+                height: 100% !important;
+                width: auto !important;
+                object-fit: contain;
+            }
+
+            .controls-card {
+                width: 100%;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+            }
+
+            .controls-card .btn-group {
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .controls-card .btn {
+                flex: 1;
+                max-width: 180px;
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+                height: 38px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Desktop Layout Grid rules */
+        @media (min-width: 1024px) {
+            .main-layout {
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+                padding: 1.5rem;
+            }
+
+            .setup-panel {
+                grid-column: 1 / 8;
+                grid-row: 1;
+                max-height: calc(100vh - 140px);
+                overflow-y: auto;
+                padding-right: 0.5rem;
+            }
+
+            .preview-panel {
+                grid-column: 8 / 13;
+                grid-row: 1;
+                position: sticky;
+                top: 6rem;
+                height: calc(100vh - 140px);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 1.5rem;
+                box-sizing: border-box;
+            }
+
+            .preview-wrapper {
+                flex: 1;
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 1rem;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.05);
+                box-sizing: border-box;
+            }
+
+            .preview-phone {
+                position: relative;
+                border: 8px solid var(--border-color);
+                border-radius: 1.5rem;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                overflow: hidden;
+                background: #000;
+                transition: all 0.3s ease;
+            }
+
+            .controls-card {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 1rem;
+                padding: 1.25rem;
+                box-sizing: border-box;
+            }
+        }
+
+        /* Config Card Elements */
+        .config-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .config-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-header-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .config-card h2 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-card h2::before {
+            content: "";
+            display: inline-block;
+            width: 0.18rem;
+            height: 0.75rem;
+            background-color: var(--primary);
+            border-radius: 9999px;
+        }
+
+        /* Preset Loader Buttons */
+        .preset-pill-group {
+            display: flex;
+            gap: 0.375rem;
+        }
+
+        .preset-pill-btn {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.25rem 0.625rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-pill-btn:hover {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* Form Inputs & Groups */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (min-width: 768px) {
+            .form-row-2col {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .form-row-3col {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .form-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-label {
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-text,
+        .input-select,
+        .input-textarea {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .input-text:focus,
+        .input-select:focus,
+        .input-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .input-textarea {
+            height: 9rem;
+            font-family: monospace;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        /* Color Picker Wrappers */
+        .color-picker-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .color-picker-input {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 0.25rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .color-picker-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Slider Range Elements */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 0.25rem;
+            background: #1e293b;
+            border-radius: 9999px;
+            outline: none;
+            margin: 0.5rem 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Toggle Switches */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .switch-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 2.25rem;
+            height: 1.25rem;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1e293b;
+            transition: 0.2s;
+            border-radius: 9999px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 0.9rem;
+            width: 0.9rem;
+            left: 0.18rem;
+            bottom: 0.18rem;
+            background-color: #94a3b8;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(1rem);
+            background-color: #ffffff;
+        }
+
+        /* Gradients Grid */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .preset-tile {
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-tile:hover {
+            transform: scale(1.05);
+        }
+
+        .preset-active {
+            border-color: var(--primary) !important;
+            transform: scale(1.05);
+        }
+
+        /* Page Preview Tabs */
+        .page-list-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .page-tab-btn {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-tab-btn:hover {
+            color: var(--text-main);
+            border-color: var(--primary);
+        }
+
+        .page-tab-active {
+            background-color: var(--primary);
+            color: white !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* Badge and Info boxes */
+        .info-badge {
+            background-color: rgba(37, 99, 235, 0.12);
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+
+        .info-tip-box {
+            display: flex;
+            align-items: center;
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            background-color: rgba(37, 99, 235, 0.05);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            padding: 0.625rem;
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        /* Buttons styling */
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            text-align: center;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            border-color: var(--danger-hover);
+        }
+
+        .preview-title {
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .preview-phone canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Modal overlay / Export overlay screen */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: var(--bg-modal);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .recording-dot {
+            width: 0.875rem;
+            height: 0.875rem;
+            background-color: #dc2626;
+            border-radius: 50%;
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+            animation: pulse-recording 1.2s infinite;
+        }
+
+        @keyframes pulse-recording {
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .progress-bar-container {
+            width: 16rem;
+            background-color: var(--border-color);
+            height: 0.375rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar-fill {
+            background-color: var(--primary);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .modal-text-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: var(--text-modal-title);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .modal-text-desc {
+            color: var(--text-modal-desc);
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .modal-text-info {
+            color: var(--text-dark);
+            font-size: 0.75rem;
+            max-width: 24rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* File inputs / file upload styling */
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            footer {
+                flex-direction: row;
+            }
+        }
+
+        footer a {
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        // Inline script to prevent theme flash
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        } else {
+            document.documentElement.classList.remove('dark-theme');
+        }
+    </script>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1>Plain Video Maker</h1>
+            </div>
+        </div>
+        <div class="nav-links">
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme" onclick="toggleTheme()">
+                <!-- Sun Icon (shows in dark theme to switch to light) -->
+                <svg class="theme-icon sun-icon hidden" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <!-- Moon Icon (shows in light theme to switch to dark) -->
+                <svg class="theme-icon moon-icon" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            <span>·</span>
+            <a href="https://saheermk.github.io/quiz-maker/">Quiz Maker</a>
+            <span>·</span>
+            <a href="#" onclick="toggleSpaManual(true); return false;">User Manual</a>
+            <span>·</span>
+            <span id="loading-spinner" class="hidden"
+                style="color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                Loading...
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-layout">
+
+        <!-- Right Side: Live Canvas Preview Panel (Placed first in HTML so it mounts at the top of stacked layouts on mobile) -->
+        <div class="preview-panel">
+            <div class="preview-wrapper">
+                <span class="preview-title">Live Canvas Preview Output</span>
+
+                <!-- Aspect Ratio Phone shell -->
+                <div id="canvas-preview-wrapper" class="preview-phone">
+                    <canvas id="videoCanvas" width="1080" height="1920"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-card">
+                <div class="btn-group">
+                    <button id="play-preview-btn" onclick="startPlayer(false)" class="btn btn-secondary">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"
+                            style="color: var(--primary);">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        Play Preview
+                    </button>
+                    <button id="stop-preview-btn" onclick="stopPlayer()" class="btn btn-danger hidden">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="color: #fca5a5;">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        Stop Preview
+                    </button>
+                    <button onclick="startPlayer(true)" class="btn btn-primary">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        Export Video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left Side: Config Panel -->
+        <div id="ui-setup" class="setup-panel">
+
+            <!-- Card 1: Content Script -->
+            <div class="config-card">
+                <div class="card-header-wrapper">
+                    <h2>Content Input</h2>
+                    <div class="preset-pill-group">
+                        <button onclick="loadSample('story')" class="preset-pill-btn">Horror Story</button>
+                        <button onclick="loadSample('malayalam')" class="preset-pill-btn">Malayalam Quote</button>
+                        <button onclick="loadSample('motivate')" class="preset-pill-btn">Motivation</button>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Video Header / Title (Optional)</label>
+                        <input type="text" id="title-input" value="DEEP THOUGHTS" oninput="drawPreview()"
+                            placeholder="E.g. FACT OF THE DAY" class="input-text">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Body Script</span>
+                            <span style="color: var(--text-dark);">Use <code style="color: #cbd5e1;">---</code> on a new
+                                line for manual page breaks</span>
+                        </div>
+                        <textarea id="text-input" oninput="updatePagination()" class="input-textarea"
+                            placeholder="Type your text pages here...">I began tucking my son into bed and he told me, "Daddy, check for monsters under my bed."
+
+I look underneath and see him staring back at me, whispering: "Daddy, there is someone on my bed."</textarea>
+                    </div>
+                </div>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Max Characters Per Page</span>
+                            <span id="char-limit-val" style="font-family: monospace;">150</span>
+                        </div>
+                        <input type="range" id="char-limit" min="40" max="400" value="150"
+                            oninput="document.getElementById('char-limit-val').innerText = this.value; updatePagination();">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end;">
+                        <div
+                            style="background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 0.625rem 1rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Slides
+                                Count:</span>
+                            <span id="page-count-badge" class="info-badge">1 Page</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                    <span class="form-label" style="display: block; margin-bottom: 0.5rem;">Click to Preview
+                        Slides</span>
+                    <div id="pages-list" class="page-list-tabs">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Layout & Typography -->
+            <div class="config-card">
+                <h2>Layout & Fonts</h2>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Aspect Ratio</label>
+                        <select id="video-format" onchange="updateAspectRatio()" class="input-select">
+                            <option value="reel">Reel / Shorts (9:16)</option>
+                            <option value="video">Standard Video (16:9)</option>
+                            <option value="square">Square Format (1:1)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Font Family</label>
+                        <select id="font-family" onchange="onFontChange()" class="input-select">
+                            <option value="Fredoka" selected>Fredoka (Bold Rounded)</option>
+                            <option value="Montserrat">Montserrat (Premium Sans-Serif)</option>
+                            <option value="Noto Sans Malayalam">Noto Sans Malayalam (Malayalam)</option>
+                            <option value="system-ui">System UI (Modern Clean)</option>
+                            <option value="Georgia">Georgia (Elegant Serif)</option>
+                            <option value="Courier New">Courier New (Typewriter Monospace)</option>
+                            <option value="Arial Narrow">Arial Narrow (Condensed)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Text Alignment</label>
+                        <select id="text-align" onchange="drawPreview()" class="input-select">
+                            <option value="center">Centered</option>
+                            <option value="left">Left Aligned</option>
+                            <option value="right">Right Aligned</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-row form-row-2col" style="margin: 0; gap: 0.5rem;">
+                            <div class="form-group">
+                                <label class="form-label">Text Color</label>
+                                <div class="color-picker-item">
+                                    <input type="color" id="text-color" value="#000000" onchange="drawPreview()"
+                                        class="color-picker-input">
+                                    <span class="color-picker-label">Text</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Title Color</label>
+                                <div class="color-picker-item">
+                                    <input type="color" id="title-color" value="#000000" onchange="drawPreview()"
+                                        class="color-picker-input">
+                                    <span class="color-picker-label">Title</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row form-row-3col" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Title Size</span>
+                            <span id="title-size-val" style="font-family: monospace;">36</span>
+                        </div>
+                        <input type="range" id="title-font-size" min="20" max="65" value="36"
+                            oninput="document.getElementById('title-size-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Body Size</span>
+                            <span id="body-size-val" style="font-family: monospace;">48</span>
+                        </div>
+                        <input type="range" id="body-font-size" min="28" max="85" value="48"
+                            oninput="document.getElementById('body-size-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Title BG Opacity</span>
+                            <span id="title-bg-opacity-val" style="font-family: monospace;">0.00</span>
+                        </div>
+                        <input type="range" id="title-bg-opacity" min="0.0" max="1.0" step="0.05" value="0.00"
+                            oninput="document.getElementById('title-bg-opacity-val').innerText=this.value; drawPreview();">
+                        <input type="hidden" id="title-bg-color" value="#ffffff">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Glassmorphism Card Behind Text -->
+            <div class="config-card">
+                <div class="card-header-wrapper">
+                    <h2>Text Container Card</h2>
+                    <div class="switch-container">
+                        <span class="switch-text">Enable Card</span>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-card" onchange="drawPreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Card Styling</label>
+                        <div class="form-row form-row-2col" style="margin: 0; gap: 0.5rem;">
+                            <div class="color-picker-item">
+                                <input type="color" id="card-color" value="#ffffff" onchange="drawPreview()"
+                                    class="color-picker-input">
+                                <span class="color-picker-label">Fill</span>
+                            </div>
+                            <div class="color-picker-item">
+                                <input type="color" id="card-border-color" value="#cccccc" onchange="drawPreview()"
+                                    class="color-picker-input">
+                                <span class="color-picker-label">Border</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Card Opacity</span>
+                            <span id="card-opacity-val" style="font-family: monospace;">0.90</span>
+                        </div>
+                        <input type="range" id="card-opacity" min="0.0" max="1.0" step="0.05" value="0.90"
+                            oninput="document.getElementById('card-opacity-val').innerText=this.value; drawPreview();">
+                    </div>
+                </div>
+
+                <div class="form-row form-row-3col" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Corner Radius</span>
+                            <span id="card-radius-val" style="font-family: monospace;">24</span>
+                        </div>
+                        <input type="range" id="card-radius" min="0" max="50" value="24"
+                            oninput="document.getElementById('card-radius-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Inner Padding</span>
+                            <span id="card-padding-val" style="font-family: monospace;">48</span>
+                        </div>
+                        <input type="range" id="card-padding" min="20" max="100" value="48"
+                            oninput="document.getElementById('card-padding-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Border Width (px)</span>
+                            <span id="card-border-width-val" style="font-family: monospace;">2</span>
+                        </div>
+                        <input type="range" id="card-border-width" min="0" max="8" value="2"
+                            oninput="document.getElementById('card-border-width-val').innerText=this.value; drawPreview();">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Canvas Background settings -->
+            <div class="config-card">
+                <h2>Canvas Background</h2>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label">Presets Gradient Styles</label>
+                    <div class="preset-grid">
+                        <button onclick="setBgStyle('preset', 'sunset')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #f43f5e, #eab308);" title="Sunset Glow"
+                            id="preset-sunset"></button>
+                        <button onclick="setBgStyle('preset', 'neon')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #a855f7, #ec4899);" title="Neon Purple"
+                            id="preset-neon"></button>
+                        <button onclick="setBgStyle('preset', 'emerald')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #059669, #06b6d4);" title="Emerald Depths"
+                            id="preset-emerald"></button>
+                        <button onclick="setBgStyle('preset', 'midnight')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #1e1b4b, #312e81);" title="Midnight Blue"
+                            id="preset-midnight"></button>
+                        <button onclick="setBgStyle('preset', 'cyberpunk')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #3b82f6, #ec4899);" title="Cyberpunk"
+                            id="preset-cyberpunk"></button>
+                        <button onclick="setBgStyle('preset', 'dark')" class="preset-tile"
+                            style="background: linear-gradient(135deg, #0f172a, #1e293b);" title="Matte Black"
+                            id="preset-dark"></button>
+                    </div>
+                </div>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Or Upload Local Image Background</label>
+                        <div class="file-upload-wrapper">
+                            <button onclick="document.getElementById('bg-image-upload').click()"
+                                class="btn btn-secondary"
+                                style="padding: 0.5rem 1rem; font-size: 0.75rem; width: 100%;">
+                                Upload Image
+                            </button>
+                            <input type="file" id="bg-image-upload" accept="image/*" style="display: none;"
+                                onchange="loadBgImage(event)">
+                            <button id="remove-bg-image-btn" onclick="removeBgImage()" class="btn btn-danger hidden"
+                                style="padding: 0.5rem 0.75rem; font-size: 0.75rem; flex: 0 0 auto;">Clear</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Or Custom Colors (Solid or Gradient)</label>
+                        <div class="color-picker-item" style="justify-content: space-between;">
+                            <span class="color-picker-label" style="font-weight: 700;">Colors</span>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="color" id="bg-color-1" value="#ffffff" onchange="setBgStyle('custom')"
+                                    class="color-picker-input">
+                                <input type="color" id="bg-color-2" value="#ffffff" onchange="setBgStyle('custom')"
+                                    class="color-picker-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="image-dim-container" class="form-row form-row-2col hidden"
+                    style="margin-top: 0.75rem; align-items: center;">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Image Dim Overlay Opacity</span>
+                            <span id="bg-dim-val" style="font-family: monospace;">0.40</span>
+                        </div>
+                        <input type="range" id="bg-dim" min="0.0" max="0.9" step="0.05" value="0.40"
+                            oninput="document.getElementById('bg-dim-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="info-tip-box">
+                        <span>💡 A Ken Burns Zoom effect is automatically applied to background images during
+                            export!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5: Timing & Pacing -->
+            <div class="config-card">
+                <h2>Timing & Pacing</h2>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Typewriter Reveal Speed</span>
+                            <span id="typewriter-speed-val" style="font-family: monospace;">40 ms</span>
+                        </div>
+                        <input type="range" id="typewriter-speed" min="0" max="150" step="5" value="40"
+                            oninput="document.getElementById('typewriter-speed-val').innerText = this.value == 0 ? 'Instant (0ms)' : this.value + ' ms';">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Read Time After Text Typing</span>
+                            <span id="page-duration-val" style="font-family: monospace;">3.0 s</span>
+                        </div>
+                        <input type="range" id="page-duration" min="1.0" max="10.0" step="0.5" value="3.0"
+                            oninput="document.getElementById('page-duration-val').innerText = this.value + ' s';">
+                    </div>
+                </div>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Transition Style</label>
+                        <select id="transition-style" class="input-select">
+                            <option value="slide">Slide Left / Right</option>
+                            <option value="fade">Cross Fade</option>
+                            <option value="instant">Instant Cut</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Transition Duration</span>
+                            <span id="transition-duration-val" style="font-family: monospace;">0.4 s</span>
+                        </div>
+                        <input type="range" id="transition-duration" min="0.1" max="1.5" step="0.1" value="0.4"
+                            oninput="document.getElementById('transition-duration-val').innerText = this.value + ' s';">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6: Synthesized Audio & Music Mix -->
+            <div class="config-card">
+                <h2>Audio synthesis & Music</h2>
+
+                <div class="form-row form-row-2col">
+                    <div
+                        style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.875rem; box-sizing: border-box;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span
+                                style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Keyboard
+                                Typewriter SFX</span>
+                            <label class="switch">
+                                <input type="checkbox" id="enable-keysounds" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-row" style="font-size: 0.625rem;">
+                                <span>Typing SFX Volume</span>
+                                <span id="key-volume-val" style="font-family: monospace;">40%</span>
+                            </div>
+                            <input type="range" id="key-volume" min="0.0" max="1.0" step="0.05" value="0.40"
+                                oninput="document.getElementById('key-volume-val').innerText=Math.round(this.value*100)+'%';">
+                        </div>
+                    </div>
+
+                    <div
+                        style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.875rem; box-sizing: border-box;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span
+                                style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Transition
+                                Whoosh SFX</span>
+                            <label class="switch">
+                                <input type="checkbox" id="enable-transitionsounds" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-row" style="font-size: 0.625rem;">
+                                <span>Whoosh SFX Volume</span>
+                                <span id="transition-volume-val" style="font-family: monospace;">40%</span>
+                            </div>
+                            <input type="range" id="transition-volume" min="0.0" max="1.0" step="0.05" value="0.40"
+                                oninput="document.getElementById('transition-volume-val').innerText=Math.round(this.value*100)+'%';">
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1rem; box-sizing: border-box; margin-top: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div>
+                            <span
+                                style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Background
+                                Music Track</span>
+                            <span style="display: block; font-size: 0.625rem; color: var(--text-dark);">Loops and mixes
+                                with key click thocks during export.</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button onclick="document.getElementById('bg-music-upload').click()"
+                                class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.6875rem;">
+                                Add Local Audio
+                            </button>
+                            <input type="file" id="bg-music-upload" accept="audio/*" style="display: none;"
+                                onchange="loadBgMusic(event)">
+                            <button id="remove-music-btn" onclick="removeBgMusic()" class="btn btn-danger hidden"
+                                style="padding: 0.4rem 0.6rem; font-size: 0.6875rem;">Remove</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                        <span id="music-name-badge" class="hidden"
+                            style="background-color: #0b0f19; border: 1px solid var(--border-color); padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.6875rem; font-family: monospace; color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                        <div class="form-group" style="flex: 1; max-width: 200px; margin-left: auto;">
+                            <div class="form-label-row" style="font-size: 0.625rem;">
+                                <span>Music Volume</span>
+                                <span id="music-volume-val" style="font-family: monospace;">20%</span>
+                            </div>
+                            <input type="range" id="music-volume" min="0.0" max="1.0" step="0.05" value="0.20"
+                                oninput="document.getElementById('music-volume-val').innerText=Math.round(this.value*100)+'%'; updateMusicVolume();">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 7: Watermark & Overlay Extras -->
+            <div class="config-card">
+                <h2>Watermark & Badge Details</h2>
+
+                <div class="form-row form-row-2col">
+                    <div class="form-group">
+                        <label class="form-label">Watermark Handle</label>
+                        <input type="text" id="watermark-input" value="saheermk.pages.dev" oninput="drawPreview()"
+                            placeholder="E.g. @yourhandle" class="input-text">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Save Name Prefix</label>
+                        <input type="text" id="save-name" value="text_to_video" placeholder="E.g. export_video"
+                            class="input-text">
+                    </div>
+                </div>
+
+                <div class="form-row form-row-3col" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Watermark Size</span>
+                            <span id="watermark-size-val" style="font-family: monospace;">24</span>
+                        </div>
+                        <input type="range" id="watermark-size" min="14" max="45" value="24"
+                            oninput="document.getElementById('watermark-size-val').innerText=this.value; drawPreview();">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <span>Watermark Opacity</span>
+                            <span id="watermark-opacity-val" style="font-family: monospace;">0.40</span>
+                        </div>
+                        <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.05" value="0.40"
+                            oninput="document.getElementById('watermark-opacity-val').innerText=this.value; drawPreview();">
+                        <input type="hidden" id="watermark-color" value="#000000">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end; gap: 0.5rem; padding-bottom: 0.25rem;">
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="enable-pagebadge" checked onchange="drawPreview()">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-text">Page Indicator</span>
+                        </div>
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="enable-progressbar" checked onchange="drawPreview()">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-text">Progress Bar</span>
+                            <input type="hidden" id="progressbar-color" value="#3b82f6">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SPA User Manual -->
+    <div id="spa-manual" class="hidden"
+        style="max-width: 900px; margin: 2rem auto; padding: 2.5rem; border-radius: 24px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04); box-sizing: border-box;">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+            <h1
+                style="font-size: 1.75rem; font-weight: 900; color: var(--text-main); margin: 0; font-family: 'Fredoka', sans-serif;">
+                User Manual & Documentation</h1>
+            <button onclick="toggleSpaManual(false)" class="btn btn-secondary"
+                style="padding: 0.5rem 1.25rem; font-size: 0.875rem; border-radius: 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; width: auto; flex: none; font-weight: 700;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Editor
+            </button>
+        </div>
+
+        <div
+            style="display: flex; flex-direction: column; gap: 2rem; color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; text-align: left;">
+            <div>
+                <h3
+                    style="font-size: 1.125rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; font-family: 'Fredoka', sans-serif;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                        style="color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    Pagination & Script Formatting
+                </h3>
+                <p>The plain text input represents the slide body. The pagination engine automatically partitions this
+                    text into word-safe boundaries according to the <strong>Max Characters Per Page</strong> slider. If
+                    you wish to force a new slide break at a specific point in the text, insert <code>---</code> on a
+                    new line.</p>
+            </div>
+
+            <div>
+                <h3
+                    style="font-size: 1.125rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; font-family: 'Fredoka', sans-serif;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                        style="color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Backgrounds & Ken Burns Zoom
+                </h3>
+                <p>You can configure background gradients, solid colors, or local uploaded images. Background images
+                    automatically render with a slow, cinematic Ken Burns zoom animation (8% scale increase) during
+                    video preview and export. Use the dim opacity slider to keep the foreground text readable.</p>
+            </div>
+
+            <div>
+                <h3
+                    style="font-size: 1.125rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; font-family: 'Fredoka', sans-serif;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                        style="color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+                        </path>
+                    </svg>
+                    Procedural Audio Mixing
+                </h3>
+                <p>Mechanical typewriter sound effects and slide transition clicks are synthesized dynamically in
+                    real-time. Additionally, you can upload an audio track (MP3/WAV) to mix continuous background music
+                    into the output WebM video file, with adjustable volume ratios.</p>
+            </div>
+
+            <div>
+                <h3
+                    style="font-size: 1.125rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; font-family: 'Fredoka', sans-serif;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                        style="color: var(--primary);">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                        </path>
+                    </svg>
+                    Offline Browser Capture
+                </h3>
+                <p>The export system operates fully offline by grabbing the HTML5 Canvas captureStream at 30 FPS and
+                    merging procedural/background AudioContext nodes. To ensure a smooth, glitch-free capture, do not
+                    hide or switch away from the browser tab during generation.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export screen overlay (centered like quiz-maker showing canvas render) -->
+    <div id="ui-render" class="modal-overlay hidden">
+        <div id="export-canvas-container" class="preview-phone" style="margin-bottom: 1.5rem;">
+            <!-- Canvas is dynamically appended here during recording -->
+        </div>
+
+        <h3 class="modal-text-title">Generating Video Export</h3>
+        <p id="status-msg" class="modal-text-desc"
+            style="color: var(--primary); font-size: 1.125rem; font-weight: 800; margin-bottom: 1rem;">Encoding
+            audio-visual frames...</p>
+
+        <div class="progress-bar-container">
+            <div id="recording-progress" class="progress-bar-fill"></div>
+        </div>
+
+        <p class="modal-text-info">
+            Please keep this browser tab active and in the foreground. The system requires continuous focus to capture
+            audio-visual loops accurately offline.
+        </p>
+
+        <button onclick="stopPlayer(true)" class="btn btn-secondary" style="max-width: 200px; font-size: 0.875rem;">
+            Cancel Generation
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Project by <a href="https://saheermk.pages.dev/" target="_blank" rel="noopener noreferrer">saheermk</a></p>
+        <div class="footer-links">
+            <a href="https://github.com/saheermk/plain-video-maker" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <span>·</span>
+            <a href="https://saheermk.pages.dev/" target="_blank" rel="noopener noreferrer">Developer</a>
+            <span>·</span>
+            <span>&copy; <span id="footer-year"></span> Plain Video Maker Engine</span>
+        </div>
+    </footer>
+
+    <script>
+        // SPA User Manual Toggle
+        function toggleSpaManual(show) {
+            const mainLayout = document.querySelector('.main-layout');
+            const spaManual = document.getElementById('spa-manual');
+            if (show) {
+                mainLayout.classList.add('hidden');
+                spaManual.classList.remove('hidden');
+            } else {
+                spaManual.classList.add('hidden');
+                mainLayout.classList.remove('hidden');
+            }
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeToggleIcons(isDark);
+        }
+
+        function updateThemeToggleIcons(isDark) {
+            const sunIcon = document.querySelector('.sun-icon');
+            const moonIcon = document.querySelector('.moon-icon');
+            if (sunIcon && moonIcon) {
+                if (isDark) {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Initialize icons based on current state
+        updateThemeToggleIcons(document.documentElement.classList.contains('dark-theme'));
+
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+        // Preset gradient configurations
+        const GRADIENTS = {
+            sunset: { name: "Sunset Glow", from: "#f43f5e", to: "#eab308" },
+            neon: { name: "Neon Purple", from: "#a855f7", to: "#ec4899" },
+            emerald: { name: "Emerald Depths", from: "#059669", to: "#06b6d4" },
+            midnight: { name: "Midnight Blue", from: "#1e1b4b", to: "#312e81" },
+            cyberpunk: { name: "Cyberpunk", from: "#3b82f6", to: "#ec4899" },
+            dark: { name: "Matte Black", from: "#0f172a", to: "#1e293b" }
+        };
+
+        // Story templates
+        const SAMPLES = {
+            story: `I began tucking my son into bed and he told me, "Daddy, check for monsters under my bed."\n\nI look underneath and see him staring back at me, whispering: "Daddy, there is someone on my bed."`,
+            malayalam: `വിജയം എന്നത് നിർത്താതെയുള്ള പരിശ്രമത്തിന്റെ ഫലമാണ്.\n\nതോൽവികളിൽ തളരാതെ മുന്നോട്ട് പോവുക.\n\nലക്ഷ്യം കാണുന്നതുവരെ പ്രയത്നിക്കുക.`,
+            motivate: `The only way to do great work is to love what you do.\n\nIf you haven't found it yet, keep looking. Don't settle.`
+        };
+
+        let pages = [];
+        let currentPreviewPageIndex = 0;
+
+        // Canvas & Context
+        const canvas = document.getElementById('videoCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        // Background settings state - default is custom (which defaults to solid white #ffffff)
+        let bgType = 'custom';
+        let bgPresetName = '';
+        let bgImage = null;
+        let gradientAngleOffset = 0;
+
+        // Player & Recorder State
+        let player = {
+            isPlaying: false,
+            isRecording: false,
+            cancelled: false,
+            currentPageIndex: 0,
+            state: 'idle', // 'typing', 'waiting', 'transition'
+            stateStartTime: 0,
+            pages: [],
+            typingSpeed: 40,
+            readDuration: 3000,
+            transitionDuration: 400,
+            animationFrameId: null
+        };
+
+        // Render Scale Parameters
+        let bodyFontSize, titleFontSize, watermarkFontSize, marginX, cardPadding, cardRadius, cardBorderWidth, lineHeight;
+
+        // Audio Engine variables
+        let audioCtx, streamDest, mediaRecorder, wakeLock = null;
+        let recordedChunks = [];
+        let lastTypedCount = -1;
+
+        // Audio Elements
+        let bgMusicFile = null;
+        let bgMusicElement = new Audio();
+        bgMusicElement.loop = true;
+        let bgMusicSourceNode = null;
+        let bgMusicGainNode = null;
+
+        // Keep Screen Awake during recording
+        async function lockScreen() {
+            if ('wakeLock' in navigator) {
+                try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { }
+            }
+        }
+
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && player.isPlaying && player.isRecording) {
+                await lockScreen();
+            }
+        });
+
+        // Initialize Procedural Audio Engine
+        async function initAudioEngine() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+            streamDest = audioCtx.createMediaStreamDestination();
+
+            // Silent hum to keep audio nodes active
+            const noise = audioCtx.createGain();
+            noise.gain.value = 0.00001;
+            const osc = audioCtx.createOscillator();
+            osc.connect(noise);
+            noise.connect(streamDest);
+            osc.start();
+        }
+
+        // Trigger Typing Key Click Sound (Procedurally Synthesised Keyboard Thock)
+        function triggerKeyClick() {
+            if (!audioCtx) return;
+            const sr = audioCtx.sampleRate;
+            const now = audioCtx.currentTime;
+
+            // Retrieve master SFX volume
+            const masterKeyVol = parseFloat(document.getElementById('key-volume').value) || 0.4;
+            if (masterKeyVol <= 0) return;
+
+            // Layer 1: Thock body (low-mid punch)
+            const thockFrames = Math.floor(sr * 0.06);
+            const thockBuf = audioCtx.createBuffer(1, thockFrames, sr);
+            const thockData = thockBuf.getChannelData(0);
+            for (let i = 0; i < thockFrames; i++) {
+                thockData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.012));
+            }
+            const thockSrc = audioCtx.createBufferSource();
+            thockSrc.buffer = thockBuf;
+
+            const thockBP = audioCtx.createBiquadFilter();
+            thockBP.type = 'bandpass';
+            thockBP.frequency.value = 420;
+            thockBP.Q.value = 1.2;
+
+            const thockGain = audioCtx.createGain();
+            thockGain.gain.setValueAtTime(0.35 * masterKeyVol, now);
+            thockGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+
+            thockSrc.connect(thockBP);
+            thockBP.connect(thockGain);
+            thockGain.connect(audioCtx.destination);
+            thockGain.connect(streamDest);
+
+            // Layer 2: Tick (crisp snap)
+            const tickFrames = Math.floor(sr * 0.018);
+            const tickBuf = audioCtx.createBuffer(1, tickFrames, sr);
+            const tickData = tickBuf.getChannelData(0);
+            for (let i = 0; i < tickFrames; i++) {
+                tickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.004));
+            }
+            const tickSrc = audioCtx.createBufferSource();
+            tickSrc.buffer = tickBuf;
+
+            const tickHP = audioCtx.createBiquadFilter();
+            tickHP.type = 'highpass';
+            tickHP.frequency.value = 3500;
+
+            const tickGain = audioCtx.createGain();
+            tickGain.gain.setValueAtTime(0.22 * masterKeyVol, now);
+            tickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.015);
+
+            tickSrc.connect(tickHP);
+            tickHP.connect(tickGain);
+            tickGain.connect(audioCtx.destination);
+            tickGain.connect(streamDest);
+
+            // Layer 3: Clack rebound (4ms delay)
+            const clackFrames = Math.floor(sr * 0.012);
+            const clackBuf = audioCtx.createBuffer(1, clackFrames, sr);
+            const clackData = clackBuf.getChannelData(0);
+            for (let i = 0; i < clackFrames; i++) {
+                clackData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.003));
+            }
+            const clackSrc = audioCtx.createBufferSource();
+            clackSrc.buffer = clackBuf;
+
+            const clackBP = audioCtx.createBiquadFilter();
+            clackBP.type = 'bandpass';
+            clackBP.frequency.value = 900;
+            clackBP.Q.value = 2.0;
+
+            const clackGain = audioCtx.createGain();
+            clackGain.gain.setValueAtTime(0.09 * masterKeyVol, now + 0.004);
+            clackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
+
+            clackSrc.connect(clackBP);
+            clackBP.connect(clackGain);
+            clackGain.connect(audioCtx.destination);
+            clackGain.connect(streamDest);
+
+            // Start sources
+            thockSrc.start(now);
+            tickSrc.start(now);
+            clackSrc.start(now + 0.004);
+        }
+
+        // Trigger Procedural Whoosh Transition Sound
+        function triggerWhoosh() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const vol = parseFloat(document.getElementById('transition-volume').value) || 0.4;
+            if (vol <= 0) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(70, now);
+            osc.frequency.exponentialRampToValueAtTime(280, now + 0.4);
+
+            // Synthesize low-pass filtered noise sweep
+            const bufferSize = audioCtx.sampleRate * 0.45;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.setValueAtTime(300, now);
+            noiseFilter.frequency.exponentialRampToValueAtTime(1000, now + 0.2);
+            noiseFilter.frequency.exponentialRampToValueAtTime(90, now + 0.45);
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.15, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+
+            // Oscillator volume
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.25, now + 0.18);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+            osc.connect(gain);
+
+            // Master node
+            const master = audioCtx.createGain();
+            master.gain.value = vol;
+
+            gain.connect(master);
+            noiseGain.connect(master);
+
+            master.connect(streamDest);
+            master.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.45);
+            noise.start(now);
+            noise.stop(now + 0.45);
+        }
+
+        // Custom Background Music Management
+        function loadBgMusic(event) {
+            const file = event.target.files[0];
+            if (file) {
+                bgMusicFile = file;
+                const objectUrl = URL.createObjectURL(file);
+                bgMusicElement.src = objectUrl;
+                document.getElementById('music-name-badge').innerText = file.name;
+                document.getElementById('music-name-badge').classList.remove('hidden');
+                document.getElementById('remove-music-btn').classList.remove('hidden');
+            }
+        }
+
+        function removeBgMusic() {
+            bgMusicFile = null;
+            bgMusicElement.src = "";
+            document.getElementById('music-name-badge').innerText = "";
+            document.getElementById('music-name-badge').classList.add('hidden');
+            document.getElementById('remove-music-btn').classList.add('hidden');
+        }
+
+        function connectBgMusic() {
+            if (!audioCtx) return;
+            if (!bgMusicSourceNode && bgMusicFile) {
+                bgMusicSourceNode = audioCtx.createMediaElementSource(bgMusicElement);
+                bgMusicGainNode = audioCtx.createGain();
+                bgMusicSourceNode.connect(bgMusicGainNode);
+            }
+
+            if (bgMusicGainNode) {
+                bgMusicGainNode.disconnect();
+                bgMusicGainNode.connect(streamDest);
+                bgMusicGainNode.connect(audioCtx.destination);
+                updateMusicVolume();
+            }
+        }
+
+        function updateMusicVolume() {
+            const volume = parseFloat(document.getElementById('music-volume').value) || 0.2;
+            if (bgMusicGainNode) {
+                bgMusicGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            }
+        }
+
+        // Load Preset Background Images
+        function loadBgImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    bgImage = new Image();
+                    bgImage.onload = () => {
+                        bgType = 'image';
+                        setActivePresetBorder(null);
+                        document.getElementById('image-dim-container').classList.remove('hidden');
+                        document.getElementById('remove-bg-image-btn').classList.remove('hidden');
+                        drawPreview();
+                    };
+                    bgImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeBgImage() {
+            bgImage = null;
+            document.getElementById('bg-image-upload').value = "";
+            document.getElementById('remove-bg-image-btn').classList.add('hidden');
+            document.getElementById('image-dim-container').classList.add('hidden');
+            setBgStyle('custom');
+        }
+
+        function setBgStyle(type, value = null) {
+            bgType = type;
+            if (type === 'preset') {
+                bgPresetName = value;
+                setActivePresetBorder(value);
+            } else {
+                setActivePresetBorder(null);
+            }
+            drawPreview();
+        }
+
+        function setActivePresetBorder(presetName) {
+            ['sunset', 'neon', 'emerald', 'midnight', 'cyberpunk', 'dark'].forEach(name => {
+                const btn = document.getElementById(`preset-${name}`);
+                if (btn) {
+                    btn.classList.remove('preset-active');
+                }
+            });
+            if (presetName) {
+                const btn = document.getElementById(`preset-${presetName}`);
+                if (btn) {
+                    btn.classList.add('preset-active');
+                }
+            }
+        }
+
+        // Font Loading Handler (local safety)
+        function onFontChange() {
+            const fontFamily = document.getElementById('font-family').value;
+            document.getElementById('loading-spinner').classList.remove('hidden');
+            document.fonts.load(`12px "${fontFamily}"`).then(() => {
+                document.getElementById('loading-spinner').classList.add('hidden');
+                drawPreview();
+            }).catch(() => {
+                document.getElementById('loading-spinner').classList.add('hidden');
+                drawPreview();
+            });
+        }
+
+        // Word-Safe Character-based Pagination Algorithm
+        function paginateText(text, maxChars) {
+            if (!text.trim()) return [];
+
+            // 1. Check for manual page breaks
+            if (text.includes('\n---\n') || text.includes('\n---')) {
+                return text.split(/\n---\n?/).map(p => p.trim()).filter(Boolean);
+            }
+
+            // 2. Automate word-safe wrapping while preserving newlines
+            const lines = text.split('\n');
+            const pageList = [];
+            let currentPageText = "";
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line === '') {
+                    if (currentPageText.length > 0) {
+                        // Append empty spacer paragraph if limit holds
+                        if (currentPageText.length + 2 <= maxChars) {
+                            currentPageText += "\n\n";
+                        }
+                    }
+                    continue;
+                }
+
+                const words = line.split(/\s+/);
+                for (let word of words) {
+                    if (!word) continue;
+
+                    const lastChar = currentPageText.slice(-1);
+                    let separator = "";
+                    if (currentPageText.length > 0) {
+                        separator = (lastChar === '\n') ? "" : " ";
+                    }
+
+                    const wordLen = word.length;
+                    const addedLen = separator.length + wordLen;
+
+                    // Excludes newline overhead during estimation
+                    const displayLength = currentPageText.replace(/\n/g, '').length;
+
+                    if (displayLength + addedLen > maxChars) {
+                        if (currentPageText.trim()) {
+                            pageList.push(currentPageText.trim());
+                        }
+                        currentPageText = word;
+                    } else {
+                        currentPageText += separator + word;
+                    }
+                }
+
+                if (currentPageText.length > 0 && !currentPageText.endsWith('\n')) {
+                    currentPageText += '\n';
+                }
+            }
+
+            if (currentPageText.trim()) {
+                pageList.push(currentPageText.trim());
+            }
+            return pageList;
+        }
+
+        // Update Pagination Tabs & Counts
+        function updatePagination() {
+            const rawText = document.getElementById('text-input').value;
+            const limit = parseInt(document.getElementById('char-limit').value) || 150;
+
+            pages = paginateText(rawText, limit);
+
+            const listContainer = document.getElementById('pages-list');
+            listContainer.innerHTML = '';
+
+            if (pages.length === 0) {
+                listContainer.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-dark); font-weight: 600;">Write some story text above...</span>';
+                currentPreviewPageIndex = 0;
+                document.getElementById('page-count-badge').innerText = '0 Pages';
+                drawPreview();
+                return;
+            }
+
+            document.getElementById('page-count-badge').innerText = `${pages.length} Page${pages.length > 1 ? 's' : ''}`;
+
+            if (currentPreviewPageIndex >= pages.length) {
+                currentPreviewPageIndex = pages.length - 1;
+            }
+
+            pages.forEach((pageText, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `page-tab-btn ${idx === currentPreviewPageIndex ? 'page-tab-active' : ''}`;
+                btn.innerText = `Page ${idx + 1}`;
+                btn.onclick = () => {
+                    currentPreviewPageIndex = idx;
+                    updatePagination();
+                };
+                listContainer.appendChild(btn);
+            });
+
+            drawPreview();
+        }
+
+        // Load Predefined Sample Text
+        function loadSample(key) {
+            if (SAMPLES[key]) {
+                document.getElementById('text-input').value = SAMPLES[key];
+                currentPreviewPageIndex = 0;
+                updatePagination();
+            }
+        }
+
+        // Recalculate size parameters relative to canvas scale
+        function recalcSizes() {
+            const scaleFactor = canvas.width / 1080;
+
+            bodyFontSize = parseFloat(document.getElementById('body-font-size').value) * scaleFactor;
+            titleFontSize = parseFloat(document.getElementById('title-font-size').value) * scaleFactor;
+            watermarkFontSize = parseFloat(document.getElementById('watermark-size').value) * scaleFactor;
+
+            lineHeight = bodyFontSize * 1.45;
+            marginX = canvas.width * 0.08;
+            cardPadding = parseFloat(document.getElementById('card-padding').value) * scaleFactor;
+            cardRadius = parseFloat(document.getElementById('card-radius').value) * scaleFactor;
+            cardBorderWidth = parseFloat(document.getElementById('card-border-width').value) * scaleFactor;
+        }
+
+        function updateAspectRatio() {
+            const format = document.getElementById('video-format').value;
+            const wrapper = document.getElementById('canvas-preview-wrapper');
+
+            if (format === 'video') {
+                canvas.width = 1920;
+                canvas.height = 1080;
+                wrapper.style.aspectRatio = '16/9';
+                wrapper.style.maxWidth = '450px';
+            } else if (format === 'square') {
+                canvas.width = 1080;
+                canvas.height = 1080;
+                wrapper.style.aspectRatio = '1/1';
+                wrapper.style.maxWidth = '300px';
+            } else {
+                canvas.width = 1080;
+                canvas.height = 1920;
+                wrapper.style.aspectRatio = '9/16';
+                wrapper.style.maxWidth = '270px';
+            }
+
+            recalcSizes();
+            drawPreview();
+        }
+
+        // Canvas Drawing Helpers
+        function roundRect(c, x, y, w, h, r, f, s) {
+            if (r < 0) r = 0;
+            c.beginPath();
+            c.moveTo(x + r, y);
+            c.lineTo(x + w - r, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + r);
+            c.lineTo(x + w, y + h - r);
+            c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            c.lineTo(x + r, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - r);
+            c.lineTo(x, y + r);
+            c.quadraticCurveTo(x, y, x + r, y);
+            c.closePath();
+            if (f) c.fill();
+            if (s) c.stroke();
+        }
+
+        // Hex to Rgba helper
+        function hexToRgba(hex, alpha) {
+            hex = hex.replace('#', '');
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Text Wrap Calculator (Newline aware)
+        function getWrappedLines(c, text, maxW) {
+            const paragraphs = text.split('\n');
+            const allLines = [];
+
+            for (let paragraph of paragraphs) {
+                if (paragraph.trim() === '') {
+                    allLines.push('');
+                } else {
+                    const words = paragraph.split(/\s+/);
+                    let currentLine = '';
+                    for (let i = 0; i < words.length; i++) {
+                        const word = words[i];
+                        if (!word) continue;
+                        const testLine = currentLine ? currentLine + ' ' + word : word;
+                        const testWidth = c.measureText(testLine).width;
+                        if (testWidth > maxW && i > 0) {
+                            allLines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                    if (currentLine) {
+                        allLines.push(currentLine);
+                    }
+                }
+            }
+            return allLines;
+        }
+
+        // Core Drawing Module for Text Cards
+        function drawCardAndText(c, pageText, pageIndex, typedLength, showCursor) {
+            if (!pageText) return;
+
+            const fontFamily = document.getElementById('font-family').value;
+            const textColor = document.getElementById('text-color').value;
+            const enableCard = document.getElementById('enable-card').checked;
+            const textAlignment = document.getElementById('text-align').value;
+
+            c.save();
+
+            // Auto-scale font size if card overflows vertical canvas space (e.g., due to paragraphs/gaps)
+            let activeBodyFontSize = bodyFontSize;
+            let activeLineHeight = lineHeight;
+            let activeCardPadding = cardPadding;
+            let maxTextW = canvas.width - 2 * marginX - 2 * activeCardPadding;
+
+            // Limit vertical height to 75% of canvas height to keep it centered and clear of watermark/header
+            const maxAvailableHeight = canvas.height * 0.75;
+
+            let lines = [];
+            let textHeight = 0;
+            const cursorChar = (showCursor && typedLength < pageText.length) ? '|' : '';
+            const textToWrap = pageText.substring(0, typedLength) + cursorChar;
+
+            while (activeBodyFontSize > 16 * (canvas.width / 1080)) {
+                c.font = `bold ${activeBodyFontSize}px '${fontFamily}'`;
+                c.textBaseline = "top";
+
+                maxTextW = canvas.width - 2 * marginX - 2 * activeCardPadding;
+                lines = getWrappedLines(c, textToWrap, maxTextW);
+
+                textHeight = 0;
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i] === '') {
+                        textHeight += activeLineHeight * 0.6;
+                    } else {
+                        textHeight += activeLineHeight;
+                    }
+                }
+
+                const totalHeight = textHeight + 2 * activeCardPadding;
+                if (totalHeight <= maxAvailableHeight) {
+                    break;
+                }
+
+                // Scale down font metrics
+                activeBodyFontSize -= 2 * (canvas.width / 1080);
+                activeLineHeight = activeBodyFontSize * 1.45;
+                activeCardPadding = Math.max(15 * (canvas.width / 1080), activeCardPadding * 0.95);
+            }
+
+            const cardHeight = textHeight + 2 * activeCardPadding;
+            const cardWidth = canvas.width - 2 * marginX;
+
+            const cardX = marginX;
+            const cardY = canvas.height / 2 - cardHeight / 2;
+
+            // Draw Glass Card backer
+            if (enableCard) {
+                c.save();
+                const cardColorVal = document.getElementById('card-color').value;
+                const cardOpacityVal = parseFloat(document.getElementById('card-opacity').value);
+                c.fillStyle = hexToRgba(cardColorVal, cardOpacityVal);
+
+                roundRect(c, cardX, cardY, cardWidth, cardHeight, cardRadius, true, false);
+
+                if (cardBorderWidth > 0) {
+                    const cardBorderColorVal = document.getElementById('card-border-color').value;
+                    c.strokeStyle = hexToRgba(cardBorderColorVal, 0.75);
+                    c.lineWidth = cardBorderWidth;
+                    roundRect(c, cardX, cardY, cardWidth, cardHeight, cardRadius, false, true);
+                }
+                c.restore();
+            }
+
+            // Render text lines
+            c.fillStyle = textColor;
+            c.font = `bold ${activeBodyFontSize}px '${fontFamily}'`;
+            let currentY = cardY + activeCardPadding;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (line === '') {
+                    currentY += activeLineHeight * 0.6; // slightly smaller spacing for empty lines
+                    continue;
+                }
+
+                let currentX = cardX + activeCardPadding;
+                if (textAlignment === 'center') {
+                    c.textAlign = 'center';
+                    currentX = canvas.width / 2;
+                } else if (textAlignment === 'right') {
+                    c.textAlign = 'right';
+                    currentX = canvas.width - marginX - activeCardPadding;
+                } else {
+                    c.textAlign = 'left';
+                }
+
+                c.fillText(line, currentX, currentY);
+                currentY += activeLineHeight;
+            }
+            c.restore();
+        }
+
+        // Draw Video Title Header (capsule shape overlay)
+        function drawTitle(text, titleY) {
+            if (!text.trim()) return;
+
+            const scaleFactor = canvas.width / 1080;
+            const fontFamily = document.getElementById('font-family').value;
+            const titleColor = document.getElementById('title-color').value;
+            const opacityVal = parseFloat(document.getElementById('title-bg-opacity').value);
+
+            ctx.save();
+            ctx.font = `bold ${titleFontSize}px '${fontFamily}'`;
+            const titleWidth = ctx.measureText(text.toUpperCase()).width;
+
+            const pillW = titleWidth + 44 * scaleFactor;
+            const pillH = titleFontSize + 22 * scaleFactor;
+            const pillX = canvas.width / 2 - pillW / 2;
+            const pillY = titleY - 11 * scaleFactor;
+
+            // Translucent title background if opacity > 0
+            if (opacityVal > 0) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacityVal})`;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${opacityVal * 0.5})`;
+                ctx.lineWidth = 1 * scaleFactor;
+                roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2, true, true);
+            }
+
+            ctx.fillStyle = titleColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(text.toUpperCase(), canvas.width / 2, titleY);
+            ctx.restore();
+        }
+
+        // Draw Watermark
+        function drawWatermark() {
+            const text = document.getElementById('watermark-input').value || '';
+            if (!text.trim()) return;
+
+            const fontFamily = document.getElementById('font-family').value;
+            const colorVal = document.getElementById('watermark-color').value;
+            const opacityVal = parseFloat(document.getElementById('watermark-opacity').value);
+
+            ctx.save();
+            ctx.font = `bold ${watermarkFontSize}px '${fontFamily}'`;
+            ctx.fillStyle = hexToRgba(colorVal, opacityVal);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            ctx.fillText(text, canvas.width / 2, canvas.height * 0.92);
+            ctx.restore();
+        }
+
+        // Draw Progress Bar (at top of canvas)
+        function drawProgressBar(c, pageIndex, pageProgress, totalPages) {
+            const enableProgressBar = document.getElementById('enable-progressbar').checked;
+            if (!enableProgressBar) return;
+
+            const h = canvas.height * 0.008;
+            const w = canvas.width;
+            const progress = (pageIndex + pageProgress) / totalPages;
+
+            c.save();
+            c.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            c.fillRect(0, 0, w, h);
+
+            c.fillStyle = document.getElementById('progressbar-color').value;
+            c.fillRect(0, 0, w * progress, h);
+            c.restore();
+        }
+
+        // Draw Page Count Badge
+        function drawPageBadge(c, pageIndex, totalPages) {
+            const enablePageBadge = document.getElementById('enable-pagebadge').checked;
+            if (!enablePageBadge || totalPages <= 0) return;
+
+            const scaleFactor = canvas.width / 1080;
+            const fontFamily = document.getElementById('font-family').value;
+
+            c.save();
+            c.font = `bold ${canvas.width * 0.03}px '${fontFamily}'`;
+            const txt = `${pageIndex + 1} / ${totalPages}`;
+            const badgeW = c.measureText(txt).width + 30 * scaleFactor;
+            const badgeH = canvas.width * 0.03 + 16 * scaleFactor;
+            const badgeX = canvas.width - marginX - badgeW;
+            const badgeY = canvas.height * 0.08 - 8 * scaleFactor;
+
+            c.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            c.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            c.lineWidth = 1 * scaleFactor;
+            roundRect(c, badgeX, badgeY, badgeW, badgeH, 12 * scaleFactor, true, true);
+
+            c.fillStyle = '#f8fafc';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle';
+            c.fillText(txt, badgeX + badgeW / 2, badgeY + badgeH / 2);
+            c.restore();
+        }
+
+        // Linear Gradient Background Drawer
+        function drawGradientBg(color1, color2) {
+            let angle = 45 * Math.PI / 180;
+            if (player.isPlaying) {
+                angle = gradientAngleOffset;
+            }
+
+            const r = Math.max(canvas.width, canvas.height) / 2;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const x1 = cx - Math.cos(angle) * r;
+            const y1 = cy - Math.sin(angle) * r;
+            const x2 = cx + Math.cos(angle) * r;
+            const y2 = cy + Math.sin(angle) * r;
+
+            const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+            grad.addColorStop(0, color1);
+            grad.addColorStop(1, color2);
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Background Router
+        function drawBackground(zoom = 1.0) {
+            if (bgType === 'preset') {
+                const colors = GRADIENTS[bgPresetName];
+                drawGradientBg(colors.from, colors.to);
+            } else if (bgType === 'custom') {
+                const from = document.getElementById('bg-color-1').value;
+                const to = document.getElementById('bg-color-2').value;
+                drawGradientBg(from, to);
+            } else if (bgType === 'image' && bgImage) {
+                ctx.save();
+
+                const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height) * zoom;
+                const w = bgImage.width * scale;
+                const h = bgImage.height * scale;
+                const x = (canvas.width - w) / 2;
+                const y = (canvas.height - h) / 2;
+
+                ctx.drawImage(bgImage, x, y, w, h);
+
+                const dimVal = parseFloat(document.getElementById('bg-dim').value) || 0.40;
+                ctx.fillStyle = `rgba(0, 0, 0, ${dimVal})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Draw static preview frame
+        function drawPreview() {
+            if (player.isPlaying) return;
+
+            recalcSizes();
+            drawBackground();
+
+            const titleText = document.getElementById('title-input').value;
+            const titleY = canvas.height * (canvas.width > canvas.height ? 0.12 : 0.08);
+            drawTitle(titleText, titleY);
+
+            drawPageBadge(ctx, currentPreviewPageIndex, pages.length);
+            drawWatermark();
+            drawProgressBar(ctx, currentPreviewPageIndex, 1.0, pages.length);
+
+            const pageText = pages[currentPreviewPageIndex] || "";
+            drawCardAndText(ctx, pageText, currentPreviewPageIndex, pageText.length, false);
+        }
+
+        // Render Slide Transitions (Slide or Cross-Fade)
+        function drawTransitionFrame(progress) {
+            recalcSizes();
+            drawBackground(1.0 + 0.08); // keep image at max zoom
+
+            const titleText = document.getElementById('title-input').value;
+            const titleY = canvas.height * (canvas.width > canvas.height ? 0.12 : 0.08);
+            drawTitle(titleText, titleY);
+
+            drawPageBadge(ctx, player.currentPageIndex + (progress > 0.5 ? 1 : 0), player.pages.length);
+            drawWatermark();
+            drawProgressBar(ctx, player.currentPageIndex, progress, player.pages.length);
+
+            const currentPageText = player.pages[player.currentPageIndex] || "";
+            const nextPageText = player.pages[player.currentPageIndex + 1] || "";
+
+            const transitionType = document.getElementById('transition-style').value;
+
+            if (transitionType === 'slide') {
+                // Current slide slides left
+                ctx.save();
+                ctx.translate(-progress * canvas.width, 0);
+                drawCardAndText(ctx, currentPageText, player.currentPageIndex, currentPageText.length, false);
+                ctx.restore();
+
+                // Next slide slides in from right
+                ctx.save();
+                ctx.translate((1 - progress) * canvas.width, 0);
+                drawCardAndText(ctx, nextPageText, player.currentPageIndex + 1, 0, false);
+                ctx.restore();
+            } else if (transitionType === 'fade') {
+                // Outgoing page fades out
+                ctx.save();
+                ctx.globalAlpha = 1 - progress;
+                drawCardAndText(ctx, currentPageText, player.currentPageIndex, currentPageText.length, false);
+                ctx.restore();
+
+                // Incoming page fades in
+                ctx.save();
+                ctx.globalAlpha = progress;
+                drawCardAndText(ctx, nextPageText, player.currentPageIndex + 1, 0, false);
+                ctx.restore();
+            } else {
+                // Instant Cut
+                if (progress < 0.5) {
+                    drawCardAndText(ctx, currentPageText, player.currentPageIndex, currentPageText.length, false);
+                } else {
+                    drawCardAndText(ctx, nextPageText, player.currentPageIndex + 1, 0, false);
+                }
+            }
+        }
+
+        // Unified Playback Tick Loop
+        function tick(timestamp) {
+            if (!player.isPlaying) return;
+
+            if (!player.stateStartTime) {
+                player.stateStartTime = timestamp;
+            }
+
+            const elapsed = timestamp - player.stateStartTime;
+            const pageText = player.pages[player.currentPageIndex] || "";
+            const enableKeySounds = document.getElementById('enable-keysounds').checked;
+
+            // Constantly rotate preset/custom gradient background
+            gradientAngleOffset = (timestamp * 0.00015) % (Math.PI * 2);
+
+            if (player.state === 'typing') {
+                const totalTypingTime = pageText.length * player.typingSpeed;
+                const charsToDraw = player.typingSpeed === 0
+                    ? pageText.length
+                    : Math.min(pageText.length, Math.floor(elapsed / player.typingSpeed));
+
+                // Trigger typing SFX
+                if (player.typingSpeed > 0 && charsToDraw > lastTypedCount) {
+                    if (charsToDraw > 0 && enableKeySounds) {
+                        triggerKeyClick();
+                    }
+                    lastTypedCount = charsToDraw;
+                }
+
+                // Progress tracker (typing + read durations)
+                const pageTotalTime = totalTypingTime + player.readDuration;
+                const progress = Math.min(1.0, elapsed / pageTotalTime);
+
+                recalcSizes();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawCanvasState(pageText, player.currentPageIndex, player.pages.length, charsToDraw, true, progress);
+
+                // Update Export progress UI
+                if (player.isRecording) {
+                    updateExportProgressIndicator();
+                }
+
+                if (player.typingSpeed === 0 || elapsed >= totalTypingTime) {
+                    player.state = 'waiting';
+                    player.stateStartTime = timestamp;
+                    lastTypedCount = -1;
+                }
+            }
+            else if (player.state === 'waiting') {
+                const totalTypingTime = pageText.length * player.typingSpeed;
+                const pageTotalTime = totalTypingTime + player.readDuration;
+                const progress = Math.min(1.0, (totalTypingTime + elapsed) / pageTotalTime);
+
+                const showCursor = Math.floor(elapsed / 500) % 2 === 0;
+
+                recalcSizes();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawCanvasState(pageText, player.currentPageIndex, player.pages.length, pageText.length, showCursor, progress);
+
+                if (player.isRecording) {
+                    updateExportProgressIndicator();
+                }
+
+                if (elapsed >= player.readDuration) {
+                    if (player.currentPageIndex < player.pages.length - 1) {
+                        player.state = 'transition';
+                        player.stateStartTime = timestamp;
+                        const enableTransitionSounds = document.getElementById('enable-transitionsounds').checked;
+                        if (enableTransitionSounds) {
+                            triggerWhoosh();
+                        }
+                    } else {
+                        // End of playback
+                        stopPlayer(false);
+                        return;
+                    }
+                }
+            }
+            else if (player.state === 'transition') {
+                const progress = Math.min(1.0, elapsed / player.transitionDuration);
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawTransitionFrame(progress);
+
+                if (player.isRecording) {
+                    updateExportProgressIndicator();
+                }
+
+                if (progress >= 1.0) {
+                    player.currentPageIndex++;
+                    player.state = 'typing';
+                    player.stateStartTime = timestamp;
+                    lastTypedCount = -1;
+                }
+            }
+
+            player.animationFrameId = requestAnimationFrame(tick);
+        }
+
+        // Draw Canvas State Helper
+        function drawCanvasState(pageText, pageIndex, totalPages, typedLength, showCursor, progress) {
+            const zoom = 1.0 + progress * 0.08;
+            drawBackground(zoom);
+
+            const titleText = document.getElementById('title-input').value;
+            const titleY = canvas.height * (canvas.width > canvas.height ? 0.12 : 0.08);
+            drawTitle(titleText, titleY);
+
+            drawPageBadge(ctx, pageIndex, totalPages);
+            drawWatermark();
+            drawProgressBar(ctx, pageIndex, progress, totalPages);
+
+            drawCardAndText(ctx, pageText, pageIndex, typedLength, showCursor);
+        }
+
+        // Calculate and display export progress bar percentage
+        function updateExportProgressIndicator() {
+            if (player.pages.length === 0) return;
+
+            let totalEstMs = 0;
+            let elapsedEstMs = 0;
+
+            player.pages.forEach((pageText, idx) => {
+                const typingMs = pageText.length * player.typingSpeed;
+                const transitionMs = (idx < player.pages.length - 1) ? player.transitionDuration : 0;
+                const pageMs = typingMs + player.readDuration + transitionMs;
+
+                totalEstMs += pageMs;
+
+                if (idx < player.currentPageIndex) {
+                    elapsedEstMs += pageMs;
+                } else if (idx === player.currentPageIndex) {
+                    if (player.state === 'typing') {
+                        elapsedEstMs += (performance.now() - player.stateStartTime);
+                    } else if (player.state === 'waiting') {
+                        elapsedEstMs += typingMs + (performance.now() - player.stateStartTime);
+                    } else if (player.state === 'transition') {
+                        elapsedEstMs += typingMs + player.readDuration + (performance.now() - player.stateStartTime);
+                    }
+                }
+            });
+
+            const percentage = Math.min(99, Math.round((elapsedEstMs / totalEstMs) * 100)) || 0;
+            document.getElementById('recording-progress').style.width = `${percentage}%`;
+            statusMsg(`Recording slide details: Page ${player.currentPageIndex + 1} of ${player.pages.length} (${percentage}%)`);
+        }
+
+        // Play/Export Controller
+        async function startPlayer(recordMode = false) {
+            if (player.isPlaying) return;
+
+            if (pages.length === 0) {
+                alert("Please write or select some content first!");
+                return;
+            }
+
+            // Audio Initialization check
+            if (!audioCtx) {
+                await initAudioEngine();
+            } else if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
+            player.isPlaying = true;
+            player.isRecording = recordMode;
+            player.cancelled = false;
+            player.currentPageIndex = 0;
+            player.state = 'typing';
+            player.stateStartTime = 0;
+            lastTypedCount = -1;
+
+            // Update UI elements
+            document.getElementById('play-preview-btn').classList.add('hidden');
+            document.getElementById('stop-preview-btn').classList.remove('hidden');
+
+            // Sync timings
+            player.typingSpeed = parseInt(document.getElementById('typewriter-speed').value);
+            player.readDuration = parseFloat(document.getElementById('page-duration').value) * 1000;
+            player.transitionDuration = parseFloat(document.getElementById('transition-duration').value) * 1000;
+            player.pages = [...pages];
+
+            if (recordMode) {
+                // Move live canvas into centered export modal (similar to quiz-maker layout)
+                const canvasContainer = document.getElementById('export-canvas-container');
+                canvasContainer.innerHTML = '';
+                canvasContainer.appendChild(canvas);
+
+                // Adjust container aspect ratio
+                const format = document.getElementById('video-format').value;
+                if (format === 'video') {
+                    canvasContainer.style.aspectRatio = '16/9';
+                    canvasContainer.style.maxWidth = '500px';
+                } else if (format === 'square') {
+                    canvasContainer.style.aspectRatio = '1/1';
+                    canvasContainer.style.maxWidth = '300px';
+                } else {
+                    canvasContainer.style.aspectRatio = '9/16';
+                    canvasContainer.style.maxWidth = '300px';
+                }
+
+                document.getElementById('ui-render').classList.remove('hidden');
+                document.getElementById('recording-progress').style.width = '0%';
+
+                // Clear and cache recorders
+                recordedChunks = [];
+                const videoStream = canvas.captureStream(30);
+
+                // Route music files
+                connectBgMusic();
+
+                const tracks = [...videoStream.getVideoTracks(), ...streamDest.stream.getAudioTracks()];
+                const mergedStream = new MediaStream(tracks);
+
+                let options = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 8000000 };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm', videoBitsPerSecond: 8000000 };
+                }
+
+                mediaRecorder = new MediaRecorder(mergedStream, options);
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = finalizeExport;
+
+                await lockScreen();
+                mediaRecorder.start(100);
+                statusMsg('Encoding frames and routing audio stream...');
+            } else {
+                connectBgMusic();
+            }
+
+            // Trigger music play
+            if (bgMusicFile) {
+                bgMusicElement.currentTime = 0;
+                bgMusicElement.play().catch(e => console.warn("Music play error:", e));
+            }
+
+            player.animationFrameId = requestAnimationFrame(tick);
+        }
+
+        // Stop Player / Recorder
+        function stopPlayer(cancelled = false) {
+            if (!player.isPlaying) return;
+
+            player.isPlaying = false;
+            cancelAnimationFrame(player.animationFrameId);
+
+            if (bgMusicFile) {
+                bgMusicElement.pause();
+            }
+
+            document.getElementById('play-preview-btn').classList.remove('hidden');
+            document.getElementById('stop-preview-btn').classList.add('hidden');
+
+            if (player.isRecording) {
+                document.getElementById('ui-render').classList.add('hidden');
+
+                // Put canvas back in configuration preview block
+                document.getElementById('canvas-preview-wrapper').appendChild(canvas);
+
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    player.cancelled = cancelled;
+                    mediaRecorder.stop();
+                }
+
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                }
+            }
+
+            player.isRecording = false;
+            player.state = 'idle';
+            drawPreview();
+        }
+
+        function statusMsg(m) {
+            document.getElementById('status-msg').innerText = m;
+        }
+
+        // Finalize Video File Download
+        function finalizeExport() {
+            const mime = mediaRecorder.mimeType;
+            const blob = new Blob(recordedChunks, { type: mime });
+
+            // Clean up wake lock
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+
+            if (player.cancelled) {
+                statusMsg('Generation cancelled.');
+                return;
+            }
+
+            const url = URL.createObjectURL(blob);
+            const ext = 'webm';
+
+            const link = document.createElement('a');
+            link.href = url;
+            const saveName = document.getElementById('save-name').value || `Video_${Date.now()}`;
+            link.download = `${saveName}.${ext}`;
+            link.click();
+
+            statusMsg('Video export downloaded successfully.');
+        }
+
+        // Initialization
+        updateAspectRatio();
+        updatePagination();
+    </script>
+</body>
+
+</html>
