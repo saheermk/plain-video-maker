@@ -50,18 +50,11 @@ Tested browsers include Google Chrome, Microsoft Edge, Brave, and Mozilla Firefo
      ```
      Then navigate to `http://localhost:8000` in your browser.
 
-## Usage Examples
-
-### Standard Slide Creation
-1. Enter your script in the primary script area.
-2. Adjust the "Max Characters Per Page" slider to set the length of each slide.
-3. Choose "Fredoka (Bold Rounded)" under Layout & Fonts.
-4. Select "Reel / Shorts (9:16)" under Aspect Ratio.
-5. Click "Play Preview" to view the animation and typewriter effects in real-time.
-6. Click "Export Video" to record and download the output WebM video file.
-
-### Manual Slide Breaks
-To control exactly where a slide ends, write your slides separated by `---` on its own line:
+### Page Split Modes
+- **1 Line Per Page (Default)**: Write each slide text on a new line. Every line break (`Enter`) creates a separate video slide.
+- **1 Word Per Page**: Splits every single word into its own slide page for fast-paced TikTok / Reels / Shorts captions.
+- **1 Paragraph Per Page**: Blank lines (`\n\n`) split text into slides.
+- **Auto (Char Limit & `---`)**: Automatically wraps text based on the "Max Characters Per Page" slider, or breaks pages wherever `---` is written on a new line:
 ```text
 This is the first slide.
 ---

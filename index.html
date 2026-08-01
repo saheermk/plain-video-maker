@@ -1008,6 +1008,8 @@
             <span>·</span>
             <a href="#" onclick="toggleSpaManual(true); return false;">User Manual</a>
             <span>·</span>
+            <a href="#" onclick="resetSettings(); return false;" title="Reset all settings to default">Reset Settings</a>
+            <span>·</span>
             <span id="loading-spinner" class="hidden"
                 style="color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
                 Loading...
@@ -1087,8 +1089,7 @@
                     <div class="form-group">
                         <div class="form-label-row">
                             <span>Body Script</span>
-                            <span style="color: var(--text-dark);">Use <code style="color: #cbd5e1;">---</code> on a new
-                                line for manual page breaks</span>
+                            <span style="color: var(--text-dark);">Default: 1 line per page (or select mode below)</span>
                         </div>
                         <textarea id="text-input" oninput="updatePagination()" class="input-textarea"
                             placeholder="Type your text pages here...">I began tucking my son into bed and he told me, "Daddy, check for monsters under my bed."
@@ -1099,26 +1100,29 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
 
                 <div class="form-row form-row-2col">
                     <div class="form-group">
+                        <label class="form-label">Page Split Mode</label>
+                        <select id="pagination-mode" onchange="updatePagination()" class="input-select">
+                            <option value="line" selected>📄 1 Line Per Page (Default)</option>
+                            <option value="word">⚡ 1 Word Per Page</option>
+                            <option value="paragraph">📑 1 Paragraph (Blank Line) Per Page</option>
+                            <option value="auto">Auto (Char Limit / ---)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <div class="form-label-row">
                             <span>Max Characters Per Page</span>
                             <span id="char-limit-val" style="font-family: monospace;">150</span>
                         </div>
-                        <input type="range" id="char-limit" min="40" max="400" value="150"
+                        <input type="range" id="char-limit" min="1" max="400" value="150"
                             oninput="document.getElementById('char-limit-val').innerText = this.value; updatePagination();">
-                    </div>
-                    <div class="form-group" style="justify-content: flex-end;">
-                        <div
-                            style="background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 0.625rem 1rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Slides
-                                Count:</span>
-                            <span id="page-count-badge" class="info-badge">1 Page</span>
-                        </div>
                     </div>
                 </div>
 
                 <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
-                    <span class="form-label" style="display: block; margin-bottom: 0.5rem;">Click to Preview
-                        Slides</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span class="form-label" style="margin-bottom: 0;">Click to Preview Slides</span>
+                        <span id="page-count-badge" class="info-badge">1 Page</span>
+                    </div>
                     <div id="pages-list" class="page-list-tabs">
                         <!-- Loaded dynamically -->
                     </div>
@@ -1489,25 +1493,70 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
 
                 <div class="form-row form-row-2col">
                     <div class="form-group">
-                        <label class="form-label">Watermark Handle</label>
+                        <label class="form-label">Watermark Type</label>
+                        <select id="watermark-type" onchange="updateWatermarkUI(); drawPreview();" class="input-select">
+                            <option value="text" selected>Text Handle</option>
+                            <option value="image">Image Logo</option>
+                            <option value="video">Video Logo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Save Name Prefix</label>
+                        <input type="text" id="save-name" value="text_to_video" placeholder="E.g. export_video" class="input-text">
+                    </div>
+                </div>
+
+                <!-- Text Watermark Controls -->
+                <div id="watermark-text-container" class="form-row form-row-2col" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Watermark Text</label>
                         <input type="text" id="watermark-input" value="saheermk.pages.dev" oninput="drawPreview()"
                             placeholder="E.g. @yourhandle" class="input-text">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Save Name Prefix</label>
-                        <input type="text" id="save-name" value="text_to_video" placeholder="E.g. export_video"
-                            class="input-text">
+                        <label class="form-label">Text Color</label>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <input type="color" id="watermark-color" value="#ffffff" onchange="updateWatermarkHex(); drawPreview();" oninput="updateWatermarkHex(); drawPreview();"
+                                style="width: 44px; height: 38px; padding: 2px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; background: transparent;">
+                            <span id="watermark-color-hex" style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">#ffffff</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image / Video Watermark Media Controls -->
+                <div id="watermark-media-container" class="form-row form-row-2col hidden" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Upload Logo / Video</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="watermark-file-input" accept="image/*,video/*" class="hidden" onchange="handleWatermarkFileSelect(this)">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('watermark-file-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                📁 Choose Media File
+                            </button>
+                            <span id="watermark-filename" style="font-size: 0.8rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 160px;"></span>
+                            <button type="button" id="watermark-remove-media-btn" class="btn btn-secondary hidden" onclick="removeWatermarkMedia()" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #ef4444;">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Video Watermark Behavior Option -->
+                    <div id="watermark-video-behavior-container" class="form-group hidden">
+                        <label class="form-label">Video Playback Rule</label>
+                        <select id="watermark-video-behavior" onchange="updateWatermarkVideoBehavior(); drawPreview();" class="input-select">
+                            <option value="loop" selected>🔁 Loop Continuously</option>
+                            <option value="disappear">⏱️ Disappear After Play</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-row form-row-3col" style="margin-top: 0.5rem;">
                     <div class="form-group">
                         <div class="form-label-row">
-                            <span>Watermark Size</span>
+                            <span id="watermark-size-label">Watermark Size</span>
                             <span id="watermark-size-val" style="font-family: monospace;">24</span>
                         </div>
-                        <input type="range" id="watermark-size" min="14" max="45" value="24"
-                            oninput="document.getElementById('watermark-size-val').innerText=this.value; drawPreview();">
+                        <input type="range" id="watermark-size" min="14" max="350" value="24"
+                            oninput="updateWatermarkSizeVal(); drawPreview();">
                     </div>
                     <div class="form-group">
                         <div class="form-label-row">
@@ -1516,7 +1565,6 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
                         </div>
                         <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.05" value="0.40"
                             oninput="document.getElementById('watermark-opacity-val').innerText=this.value; drawPreview();">
-                        <input type="hidden" id="watermark-color" value="#000000">
                     </div>
                     <div class="form-group" style="justify-content: flex-end; gap: 0.5rem; padding-bottom: 0.25rem;">
                         <div class="switch-container">
@@ -1569,12 +1617,15 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                         </path>
                     </svg>
-                    Pagination & Script Formatting
+                    Pagination & Script Formatting Modes
                 </h3>
-                <p>The plain text input represents the slide body. The pagination engine automatically partitions this
-                    text into word-safe boundaries according to the <strong>Max Characters Per Page</strong> slider. If
-                    you wish to force a new slide break at a specific point in the text, insert <code>---</code> on a
-                    new line.</p>
+                <p>You can control how your script is partitioned into video slides using the <strong>Page Split Mode</strong> selector:</p>
+                <ul style="margin: 0.5rem 0; padding-left: 1.25rem;">
+                    <li style="margin-bottom: 0.35rem;"><strong>📄 1 Line Per Page (Default):</strong> Each line break (press <code>Enter</code>) creates a new slide page. Perfect for poem lines, quotes, or short sentence captions.</li>
+                    <li style="margin-bottom: 0.35rem;"><strong>⚡ 1 Word Per Page:</strong> Splits every single word into its own slide page for fast-paced TikTok / Reels / Shorts captions.</li>
+                    <li style="margin-bottom: 0.35rem;"><strong>📑 1 Paragraph Per Page:</strong> Splits slides whenever there is an empty blank line (double <code>Enter</code>).</li>
+                    <li style="margin-bottom: 0.35rem;"><strong>Auto (Char Limit & <code>---</code>):</strong> Automatically wraps text based on the <em>Max Characters Per Page</em> slider, or manually breaks pages wherever you type <code>---</code> on a new line.</li>
+                </ul>
             </div>
 
             <div>
@@ -1751,6 +1802,12 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
 
         // Render Scale Parameters
         let bodyFontSize, titleFontSize, watermarkFontSize, marginX, cardPadding, cardRadius, cardBorderWidth, lineHeight;
+
+        // Watermark Media Variables
+        let watermarkType = 'text';
+        let watermarkImage = null;
+        let watermarkVideo = null;
+        let watermarkVideoEnded = false;
 
         // Audio Engine variables
         let audioCtx, streamDest, mediaRecorder, wakeLock = null;
@@ -1949,6 +2006,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
                 document.getElementById('music-name-badge').innerText = file.name;
                 document.getElementById('music-name-badge').classList.remove('hidden');
                 document.getElementById('remove-music-btn').classList.remove('hidden');
+                updateMusicVolume();
             }
         }
 
@@ -1977,9 +2035,20 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
         }
 
         function updateMusicVolume() {
-            const volume = parseFloat(document.getElementById('music-volume').value) || 0.2;
+            const volumeInput = document.getElementById('music-volume');
+            const volume = volumeInput ? parseFloat(volumeInput.value) : 0.2;
+            
+            if (bgMusicElement) {
+                bgMusicElement.volume = volume;
+            }
+
             if (bgMusicGainNode) {
-                bgMusicGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+                bgMusicGainNode.gain.value = volume;
+                if (audioCtx) {
+                    try {
+                        bgMusicGainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+                    } catch (e) {}
+                }
             }
         }
 
@@ -2051,16 +2120,8 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
         }
 
         // Word-Safe Character-based Pagination Algorithm
-        function paginateText(text, maxChars) {
-            if (!text.trim()) return [];
-
-            // 1. Check for manual page breaks
-            if (text.includes('\n---\n') || text.includes('\n---')) {
-                return text.split(/\n---\n?/).map(p => p.trim()).filter(Boolean);
-            }
-
-            // 2. Automate word-safe wrapping while preserving newlines
-            const lines = text.split('\n');
+        function autoPaginate(text, maxChars) {
+            const lines = text.split(/\r?\n/);
             const pageList = [];
             let currentPageText = "";
 
@@ -2113,8 +2174,230 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             return pageList;
         }
 
+        function paginateText(text, maxChars) {
+            if (!text.trim()) return [];
+
+            const modeSelect = document.getElementById('pagination-mode');
+            const mode = modeSelect ? modeSelect.value : 'line';
+
+            let rawSections = [];
+
+            // 1. Single Word Mode
+            if (mode === 'word') {
+                rawSections = text.trim().split(/\s+/).filter(Boolean);
+            }
+            // 2. Single Line Mode
+            else if (mode === 'line') {
+                rawSections = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            }
+            // 3. Paragraph Mode (Blank Lines)
+            else if (mode === 'paragraph') {
+                rawSections = text.split(/(?:\r?\n){2,}/).map(p => p.trim()).filter(Boolean);
+            }
+            // 4. Auto Mode (Check for manual --- breaks, blank lines, or single body text)
+            else {
+                const manualBreakRegex = /(?:^|\r?\n)\s*-{3,}\s*(?:\r?\n|$)/;
+                if (manualBreakRegex.test(text)) {
+                    rawSections = text.split(manualBreakRegex).map(p => p.trim()).filter(Boolean);
+                } else if (/\r?\n\s*\r?\n/.test(text)) {
+                    rawSections = text.split(/(?:\r?\n){2,}/).map(p => p.trim()).filter(Boolean);
+                } else {
+                    rawSections = [text.trim()];
+                }
+            }
+
+            // Universal Rule: Enforce maxChars page limit across all modes and sections
+            let finalPages = [];
+            for (let section of rawSections) {
+                if (section.length > maxChars) {
+                    finalPages.push(...autoPaginate(section, maxChars));
+                } else {
+                    finalPages.push(section);
+                }
+            }
+
+            return finalPages;
+        }
+
+        // Persistence Engine: Save and Load User Settings to LocalStorage
+        const SETTINGS_KEY = 'plain_video_maker_user_settings';
+
+        function saveSettings() {
+            try {
+                const getVal = id => document.getElementById(id) ? document.getElementById(id).value : null;
+                const getChecked = id => document.getElementById(id) ? document.getElementById(id).checked : null;
+
+                const settings = {
+                    paginationMode: getVal('pagination-mode'),
+                    charLimit: getVal('char-limit'),
+                    videoFormat: getVal('video-format'),
+                    fontFamily: getVal('font-family'),
+                    titleInput: getVal('title-input'),
+                    titleFontSize: getVal('title-font-size'),
+                    titleColor: getVal('title-color'),
+                    titleBgOpacity: getVal('title-bg-opacity'),
+                    bodyFontSize: getVal('body-font-size'),
+                    textColor: getVal('text-color'),
+                    textAlign: getVal('text-align'),
+                    enableCard: getChecked('enable-card'),
+                    cardColor: getVal('card-color'),
+                    cardOpacity: getVal('card-opacity'),
+                    cardRadius: getVal('card-radius'),
+                    cardPadding: getVal('card-padding'),
+                    cardBorderWidth: getVal('card-border-width'),
+                    cardBorderColor: getVal('card-border-color'),
+                    typewriterSpeed: getVal('typewriter-speed'),
+                    pageDuration: getVal('page-duration'),
+                    transitionStyle: getVal('transition-style'),
+                    transitionDuration: getVal('transition-duration'),
+                    enableKeysounds: getChecked('enable-keysounds'),
+                    keyVolume: getVal('key-volume'),
+                    enableTransitionsounds: getChecked('enable-transitionsounds'),
+                    transitionVolume: getVal('transition-volume'),
+                    musicVolume: getVal('music-volume'),
+                    watermarkType: getVal('watermark-type'),
+                    watermarkVideoBehavior: getVal('watermark-video-behavior'),
+                    watermarkInput: getVal('watermark-input'),
+                    watermarkColor: getVal('watermark-color'),
+                    watermarkSize: getVal('watermark-size'),
+                    watermarkOpacity: getVal('watermark-opacity'),
+                    enableProgressbar: getChecked('enable-progressbar'),
+                    progressbarColor: getVal('progressbar-color'),
+                    enablePagebadge: getChecked('enable-pagebadge'),
+                    bgColor1: getVal('bg-color-1'),
+                    bgColor2: getVal('bg-color-2'),
+                    bgDim: getVal('bg-dim'),
+                    bgType: bgType,
+                    bgPresetName: bgPresetName,
+                    saveName: getVal('save-name'),
+                    textInput: getVal('text-input')
+                };
+
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+            } catch (e) {
+                console.warn('Unable to save settings to localStorage:', e);
+            }
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem(SETTINGS_KEY);
+                if (!saved) return;
+                const settings = JSON.parse(saved);
+
+                const setVal = (id, val, textValId = null, suffix = '') => {
+                    const el = document.getElementById(id);
+                    if (el && val !== null && val !== undefined) {
+                        el.value = val;
+                        if (textValId) {
+                            const textEl = document.getElementById(textValId);
+                            if (textEl) textEl.innerText = val + suffix;
+                        }
+                    }
+                };
+
+                const setChecked = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== null && val !== undefined) {
+                        el.checked = val;
+                    }
+                };
+
+                setVal('pagination-mode', settings.paginationMode);
+                setVal('char-limit', settings.charLimit, 'char-limit-val');
+                setVal('video-format', settings.videoFormat);
+                setVal('font-family', settings.fontFamily);
+                setVal('title-input', settings.titleInput);
+                setVal('title-font-size', settings.titleFontSize, 'title-size-val');
+                setVal('title-color', settings.titleColor);
+                setVal('title-bg-opacity', settings.titleBgOpacity, 'title-bg-opacity-val');
+                setVal('body-font-size', settings.bodyFontSize, 'body-size-val');
+                setVal('text-color', settings.textColor);
+                setVal('text-align', settings.textAlign);
+
+                setChecked('enable-card', settings.enableCard);
+                setVal('card-color', settings.cardColor);
+                setVal('card-opacity', settings.cardOpacity, 'card-opacity-val');
+                setVal('card-radius', settings.cardRadius, 'card-radius-val');
+                setVal('card-padding', settings.cardPadding, 'card-padding-val');
+                setVal('card-border-width', settings.cardBorderWidth, 'card-border-width-val');
+                setVal('card-border-color', settings.cardBorderColor);
+
+                if (settings.typewriterSpeed !== undefined && settings.typewriterSpeed !== null) {
+                    setVal('typewriter-speed', settings.typewriterSpeed);
+                    const speedEl = document.getElementById('typewriter-speed-val');
+                    if (speedEl) speedEl.innerText = settings.typewriterSpeed == 0 ? 'Instant (0ms)' : settings.typewriterSpeed + ' ms';
+                }
+
+                setVal('page-duration', settings.pageDuration, 'page-duration-val', ' s');
+                setVal('transition-style', settings.transitionStyle);
+                setVal('transition-duration', settings.transitionDuration, 'transition-duration-val', ' s');
+
+                setChecked('enable-keysounds', settings.enableKeysounds);
+                if (settings.keyVolume !== undefined && settings.keyVolume !== null) {
+                    setVal('key-volume', settings.keyVolume);
+                    const keyVolEl = document.getElementById('key-volume-val');
+                    if (keyVolEl) keyVolEl.innerText = Math.round(settings.keyVolume * 100) + '%';
+                }
+
+                setChecked('enable-transitionsounds', settings.enableTransitionsounds);
+                if (settings.transitionVolume !== undefined && settings.transitionVolume !== null) {
+                    setVal('transition-volume', settings.transitionVolume);
+                    const transVolEl = document.getElementById('transition-volume-val');
+                    if (transVolEl) transVolEl.innerText = Math.round(settings.transitionVolume * 100) + '%';
+                }
+
+                if (settings.musicVolume !== undefined && settings.musicVolume !== null) {
+                    setVal('music-volume', settings.musicVolume);
+                    const musicVolEl = document.getElementById('music-volume-val');
+                    if (musicVolEl) musicVolEl.innerText = Math.round(settings.musicVolume * 100) + '%';
+                }
+
+                setVal('watermark-type', settings.watermarkType);
+                setVal('watermark-video-behavior', settings.watermarkVideoBehavior);
+                setVal('watermark-input', settings.watermarkInput);
+                if (settings.watermarkColor) {
+                    setVal('watermark-color', settings.watermarkColor);
+                    const hexEl = document.getElementById('watermark-color-hex');
+                    if (hexEl) hexEl.innerText = settings.watermarkColor;
+                }
+                setVal('watermark-size', settings.watermarkSize);
+                setVal('watermark-opacity', settings.watermarkOpacity, 'watermark-opacity-val');
+                updateWatermarkUI();
+
+                setChecked('enable-progressbar', settings.enableProgressbar);
+                setVal('progressbar-color', settings.progressbarColor);
+                setChecked('enable-pagebadge', settings.enablePagebadge);
+
+                setVal('bg-color-1', settings.bgColor1);
+                setVal('bg-color-2', settings.bgColor2);
+                setVal('bg-dim', settings.bgDim, 'bg-dim-val');
+
+                if (settings.bgType) bgType = settings.bgType;
+                if (settings.bgPresetName) {
+                    bgPresetName = settings.bgPresetName;
+                    if (bgType === 'preset') setActivePresetBorder(bgPresetName);
+                }
+
+                setVal('save-name', settings.saveName);
+                if (settings.textInput !== null && settings.textInput !== undefined) {
+                    setVal('text-input', settings.textInput);
+                }
+            } catch (e) {
+                console.warn('Unable to load settings from localStorage:', e);
+            }
+        }
+
+        function resetSettings() {
+            if (confirm('Reset all settings to default values?')) {
+                localStorage.removeItem(SETTINGS_KEY);
+                location.reload();
+            }
+        }
+
         // Update Pagination Tabs & Counts
         function updatePagination() {
+            saveSettings();
             const rawText = document.getElementById('text-input').value;
             const limit = parseInt(document.getElementById('char-limit').value) || 150;
 
@@ -2397,22 +2680,186 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             ctx.restore();
         }
 
+        // Watermark Helper UI & Handlers
+        function updateWatermarkHex() {
+            const colorVal = document.getElementById('watermark-color').value;
+            const hexEl = document.getElementById('watermark-color-hex');
+            if (hexEl) hexEl.innerText = colorVal;
+        }
+
+        function updateWatermarkSizeVal() {
+            const type = document.getElementById('watermark-type').value;
+            const val = document.getElementById('watermark-size').value;
+            const sizeValEl = document.getElementById('watermark-size-val');
+            if (sizeValEl) {
+                sizeValEl.innerText = val + (type === 'text' ? '' : 'px');
+            }
+        }
+
+        function updateWatermarkUI() {
+            const type = document.getElementById('watermark-type').value;
+            watermarkType = type;
+
+            const textContainer = document.getElementById('watermark-text-container');
+            const mediaContainer = document.getElementById('watermark-media-container');
+            const videoBehaviorContainer = document.getElementById('watermark-video-behavior-container');
+            const sizeLabel = document.getElementById('watermark-size-label');
+
+            updateWatermarkHex();
+            updateWatermarkSizeVal();
+
+            if (type === 'text') {
+                textContainer.classList.remove('hidden');
+                mediaContainer.classList.add('hidden');
+                sizeLabel.innerText = "Text Size";
+            } else {
+                textContainer.classList.add('hidden');
+                mediaContainer.classList.remove('hidden');
+                sizeLabel.innerText = "Watermark Width";
+
+                if (type === 'video') {
+                    videoBehaviorContainer.classList.remove('hidden');
+                } else {
+                    videoBehaviorContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        function handleWatermarkFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const url = URL.createObjectURL(file);
+            const type = file.type;
+
+            document.getElementById('watermark-filename').innerText = file.name;
+            document.getElementById('watermark-remove-media-btn').classList.remove('hidden');
+
+            if (type.startsWith('video/')) {
+                watermarkType = 'video';
+                document.getElementById('watermark-type').value = 'video';
+
+                if (watermarkVideo) {
+                    watermarkVideo.pause();
+                    watermarkVideo.src = "";
+                }
+
+                watermarkVideo = document.createElement('video');
+                watermarkVideo.src = url;
+                watermarkVideo.muted = true;
+                watermarkVideo.autoplay = true;
+                watermarkVideo.playsInline = true;
+
+                const behavior = document.getElementById('watermark-video-behavior').value;
+                watermarkVideo.loop = (behavior === 'loop');
+                watermarkVideoEnded = false;
+
+                watermarkVideo.onended = () => {
+                    if (document.getElementById('watermark-video-behavior').value === 'disappear') {
+                        watermarkVideoEnded = true;
+                        drawPreview();
+                    }
+                };
+
+                watermarkVideo.onloadeddata = () => {
+                    watermarkVideo.play().catch(() => {});
+                    updateWatermarkUI();
+                    drawPreview();
+                };
+            } else if (type.startsWith('image/')) {
+                watermarkType = 'image';
+                document.getElementById('watermark-type').value = 'image';
+
+                watermarkImage = new Image();
+                watermarkImage.onload = () => {
+                    updateWatermarkUI();
+                    drawPreview();
+                };
+                watermarkImage.src = url;
+            }
+        }
+
+        function removeWatermarkMedia() {
+            watermarkImage = null;
+            if (watermarkVideo) {
+                watermarkVideo.pause();
+                watermarkVideo.src = "";
+                watermarkVideo = null;
+            }
+            watermarkVideoEnded = false;
+            document.getElementById('watermark-filename').innerText = "";
+            document.getElementById('watermark-remove-media-btn').classList.add('hidden');
+            document.getElementById('watermark-file-input').value = "";
+            watermarkType = 'text';
+            document.getElementById('watermark-type').value = 'text';
+            updateWatermarkUI();
+            drawPreview();
+        }
+
+        function updateWatermarkVideoBehavior() {
+            if (watermarkVideo) {
+                const behavior = document.getElementById('watermark-video-behavior').value;
+                watermarkVideo.loop = (behavior === 'loop');
+                if (behavior === 'loop') {
+                    watermarkVideoEnded = false;
+                    watermarkVideo.play().catch(() => {});
+                }
+            }
+        }
+
         // Draw Watermark
         function drawWatermark() {
-            const text = document.getElementById('watermark-input').value || '';
-            if (!text.trim()) return;
-
-            const fontFamily = document.getElementById('font-family').value;
-            const colorVal = document.getElementById('watermark-color').value;
-            const opacityVal = parseFloat(document.getElementById('watermark-opacity').value);
+            const opacityVal = parseFloat(document.getElementById('watermark-opacity').value) || 0.40;
+            const typeSelect = document.getElementById('watermark-type').value;
 
             ctx.save();
-            ctx.font = `bold ${watermarkFontSize}px '${fontFamily}'`;
-            ctx.fillStyle = hexToRgba(colorVal, opacityVal);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
+            ctx.globalAlpha = opacityVal;
 
-            ctx.fillText(text, canvas.width / 2, canvas.height * 0.92);
+            if (typeSelect === 'text') {
+                const text = document.getElementById('watermark-input').value || '';
+                if (text.trim()) {
+                    const fontFamily = document.getElementById('font-family').value;
+                    const colorVal = document.getElementById('watermark-color').value || '#ffffff';
+
+                    ctx.font = `bold ${watermarkFontSize}px '${fontFamily}'`;
+                    ctx.fillStyle = colorVal;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(text, canvas.width / 2, canvas.height * 0.94);
+                }
+            } else if (typeSelect === 'image' && watermarkImage && watermarkImage.complete) {
+                // Resizing Rule: ONLY width is changed by user slider, height derived proportionally
+                const rawWidth = parseFloat(document.getElementById('watermark-size').value) || 120;
+                const targetWidth = rawWidth * scaleFactor;
+                const aspect = watermarkImage.naturalHeight / (watermarkImage.naturalWidth || 1);
+                const targetHeight = targetWidth * aspect;
+
+                const x = (canvas.width - targetWidth) / 2;
+                const y = canvas.height * 0.94 - targetHeight;
+
+                ctx.drawImage(watermarkImage, x, y, targetWidth, targetHeight);
+            } else if (typeSelect === 'video' && watermarkVideo) {
+                const behavior = document.getElementById('watermark-video-behavior').value;
+                if (behavior === 'disappear' && watermarkVideoEnded) {
+                    ctx.restore();
+                    return;
+                }
+
+                const videoW = watermarkVideo.videoWidth || 100;
+                const videoH = watermarkVideo.videoHeight || 100;
+
+                // Resizing Rule: ONLY width is changed by user slider, height derived proportionally
+                const rawWidth = parseFloat(document.getElementById('watermark-size').value) || 120;
+                const targetWidth = rawWidth * scaleFactor;
+                const aspect = videoH / (videoW || 1);
+                const targetHeight = targetWidth * aspect;
+
+                const x = (canvas.width - targetWidth) / 2;
+                const y = canvas.height * 0.94 - targetHeight;
+
+                ctx.drawImage(watermarkVideo, x, y, targetWidth, targetHeight);
+            }
+
             ctx.restore();
         }
 
@@ -2518,6 +2965,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
 
         // Draw static preview frame
         function drawPreview() {
+            saveSettings();
             if (player.isPlaying) return;
 
             recalcSizes();
@@ -2768,6 +3216,14 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             player.transitionDuration = parseFloat(document.getElementById('transition-duration').value) * 1000;
             player.pages = [...pages];
 
+            if (watermarkVideo) {
+                const behavior = document.getElementById('watermark-video-behavior').value;
+                watermarkVideo.currentTime = 0;
+                watermarkVideoEnded = false;
+                watermarkVideo.loop = (behavior === 'loop');
+                watermarkVideo.play().catch(() => {});
+            }
+
             if (recordMode) {
                 // Move live canvas into centered export modal (similar to quiz-maker layout)
                 const canvasContainer = document.getElementById('export-canvas-container');
@@ -2894,6 +3350,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
         }
 
         // Initialization
+        loadSettings();
         updateAspectRatio();
         updatePagination();
     </script>
