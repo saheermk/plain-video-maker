@@ -3337,6 +3337,36 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             document.getElementById('status-msg').innerText = m;
         }
 
+        function getExportFileName() {
+            const customSaveName = (document.getElementById('save-name').value || '').trim();
+            const titleText = (document.getElementById('title-input').value || '').trim();
+            const bodyText = (document.getElementById('text-input').value || '').trim();
+
+            // If user typed a custom save name override, use it
+            if (customSaveName && customSaveName !== 'text_to_video') {
+                return customSaveName.replace(/[\\/:\*\?"<>\|]/g, '').replace(/\s+/g, '_');
+            }
+
+            let rawName = "";
+            if (titleText) {
+                rawName = titleText;
+            } else if (bodyText) {
+                const firstLine = bodyText.split(/\r?\n/)[0].trim();
+                rawName = firstLine.slice(0, 45);
+            }
+
+            if (!rawName) {
+                rawName = customSaveName || "text_to_video";
+            }
+
+            const sanitized = rawName
+                .replace(/[\\/:\*\?"<>\|]/g, '')
+                .replace(/\s+/g, '_')
+                .trim();
+
+            return sanitized || `Video_${Date.now()}`;
+        }
+
         // Finalize Video File Download
         function finalizeExport() {
             const mime = mediaRecorder.mimeType;
@@ -3358,7 +3388,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
 
             const link = document.createElement('a');
             link.href = url;
-            const saveName = document.getElementById('save-name').value || `Video_${Date.now()}`;
+            const saveName = getExportFileName();
             link.download = `${saveName}.${ext}`;
             link.click();
 
