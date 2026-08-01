@@ -11,7 +11,7 @@
             font-family: 'Noto Sans Malayalam';
             font-style: normal;
             font-weight: 400;
-            font-display: swap;
+            font-display: block;
             src: url('font/NotoSansMalayalam-Regular.ttf') format('truetype');
         }
 
@@ -19,7 +19,7 @@
             font-family: 'Noto Sans Malayalam';
             font-style: normal;
             font-weight: 700;
-            font-display: swap;
+            font-display: block;
             src: url('font/NotoSansMalayalam-Bold.ttf') format('truetype');
         }
 
@@ -27,7 +27,7 @@
             font-family: 'Montserrat';
             font-style: normal;
             font-weight: 400;
-            font-display: swap;
+            font-display: block;
             src: url('font/Montserrat-Regular.ttf') format('truetype');
         }
 
@@ -35,7 +35,7 @@
             font-family: 'Montserrat';
             font-style: normal;
             font-weight: 700;
-            font-display: swap;
+            font-display: block;
             src: url('font/Montserrat-Bold.ttf') format('truetype');
         }
 
@@ -43,7 +43,7 @@
             font-family: 'Montserrat';
             font-style: normal;
             font-weight: 900;
-            font-display: swap;
+            font-display: block;
             src: url('font/Montserrat-Black.ttf') format('truetype');
         }
 
@@ -51,7 +51,7 @@
             font-family: 'Fredoka';
             font-style: normal;
             font-weight: 400;
-            font-display: swap;
+            font-display: block;
             src: url('font/Fredoka-Regular.ttf') format('truetype');
         }
 
@@ -59,7 +59,7 @@
             font-family: 'Fredoka';
             font-style: normal;
             font-weight: 600;
-            font-display: swap;
+            font-display: block;
             src: url('font/Fredoka-SemiBold.ttf') format('truetype');
         }
 
@@ -67,7 +67,7 @@
             font-family: 'Fredoka';
             font-style: normal;
             font-weight: 700;
-            font-display: swap;
+            font-display: block;
             src: url('font/Fredoka-Bold.ttf') format('truetype');
         }
 
@@ -2106,17 +2106,30 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             }
         }
 
-        // Font Loading Handler (local safety)
-        function onFontChange() {
+        // Font Loading Handler & Async Preloader
+        async function ensureFontLoaded(fontFamily) {
+            if (!document.fonts) return;
+            try {
+                await Promise.all([
+                    document.fonts.load(`400 32px "${fontFamily}"`),
+                    document.fonts.load(`700 32px "${fontFamily}"`),
+                    document.fonts.load(`bold 32px "${fontFamily}"`)
+                ]);
+                await document.fonts.ready;
+            } catch (e) {
+                console.warn('Font load check warning:', e);
+            }
+        }
+
+        async function onFontChange() {
             const fontFamily = document.getElementById('font-family').value;
-            document.getElementById('loading-spinner').classList.remove('hidden');
-            document.fonts.load(`12px "${fontFamily}"`).then(() => {
-                document.getElementById('loading-spinner').classList.add('hidden');
-                drawPreview();
-            }).catch(() => {
-                document.getElementById('loading-spinner').classList.add('hidden');
-                drawPreview();
-            });
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner) spinner.classList.remove('hidden');
+
+            await ensureFontLoaded(fontFamily);
+
+            if (spinner) spinner.classList.add('hidden');
+            drawPreview();
         }
 
         // Word-Safe Character-based Pagination Algorithm
@@ -2568,7 +2581,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             const textToWrap = pageText.substring(0, typedLength) + cursorChar;
 
             while (activeBodyFontSize > 16 * (canvas.width / 1080)) {
-                c.font = `bold ${activeBodyFontSize}px '${fontFamily}'`;
+                c.font = `bold ${activeBodyFontSize}px '${fontFamily}', sans-serif`;
                 c.textBaseline = "top";
 
                 maxTextW = canvas.width - 2 * marginX - 2 * activeCardPadding;
@@ -2657,7 +2670,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             const opacityVal = parseFloat(document.getElementById('title-bg-opacity').value);
 
             ctx.save();
-            ctx.font = `bold ${titleFontSize}px '${fontFamily}'`;
+            ctx.font = `bold ${titleFontSize}px '${fontFamily}', sans-serif`;
             const titleWidth = ctx.measureText(text.toUpperCase()).width;
 
             const pillW = titleWidth + 44 * scaleFactor;
@@ -2821,7 +2834,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
                     const fontFamily = document.getElementById('font-family').value;
                     const colorVal = document.getElementById('watermark-color').value || '#ffffff';
 
-                    ctx.font = `bold ${watermarkFontSize}px '${fontFamily}'`;
+                    ctx.font = `bold ${watermarkFontSize}px '${fontFamily}', sans-serif`;
                     ctx.fillStyle = colorVal;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
@@ -2890,7 +2903,7 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
             const fontFamily = document.getElementById('font-family').value;
 
             c.save();
-            c.font = `bold ${canvas.width * 0.03}px '${fontFamily}'`;
+            c.font = `bold ${canvas.width * 0.03}px '${fontFamily}', sans-serif`;
             const txt = `${pageIndex + 1} / ${totalPages}`;
             const badgeW = c.measureText(txt).width + 30 * scaleFactor;
             const badgeH = canvas.width * 0.03 + 16 * scaleFactor;
@@ -3190,6 +3203,9 @@ I look underneath and see him staring back at me, whispering: "Daddy, there is s
                 alert("Please write or select some content first!");
                 return;
             }
+
+            const currentFont = document.getElementById('font-family').value;
+            await ensureFontLoaded(currentFont);
 
             // Audio Initialization check
             if (!audioCtx) {
